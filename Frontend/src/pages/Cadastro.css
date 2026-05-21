@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght=400;600;700&display=swap');
+
+.container, 
+.container *, 
+.container button, 
+.container input {
+  font-family: 'Open Sans', sans-serif !important;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #1d2530;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px; 
+}
+
+.icon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 5px;
+}
+
+h2 {
+  font-size: 26px;
+  color: #111111;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+h2 span {
+  color: #1f35ff;
+}
+
+.checkbox-area {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.checkbox-area input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #1f35ff; 
+}
+
+.google-btn {
+  width: 100%;
+  height: 56px; 
+  border: 1px solid #ced4da;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.google-btn:hover {
+  background-color: #f8f9fa; 
+}
+
+.google-btn:active {
+  transform: scale(0.98); 
+}
+
+.google-btn img {
+  width: 22px;
+}
+
+.login-text {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #6d6d6d;
+  text-align: center;
+}
+
+.login-text span {
+  color: #1f35ff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkbox-container-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+.checkbox-container-group .checkbox-area {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.error-message-inline.terms-error {
+  text-align: left;
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+a {
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+.signup a,
+.login-text a {
+  text-decoration: none !important;
+}
+
+.signup span,
+.login-text span {
+  color: #1f35ff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: inline-block;
+}
+
+.signup span:hover,
+.login-text span:hover {
+  color: #1324cc;
+}
+
+.signup span:focus,
+.login-text span:focus,
+.signup a:focus,
+.login-text a:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

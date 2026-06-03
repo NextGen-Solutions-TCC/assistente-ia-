@@ -101,7 +101,7 @@ function Login() {
           <div className={errorEmail ? "input-error-wrapper" : ""}>
             <Input
               type="email"
-              placeholder="Digite seu e-mail (Ex: nome@email.com)"
+              placeholder="nome@email.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -111,7 +111,7 @@ function Login() {
           </div>
         </div>
 
-        {/* CAMPO DE SENHA COM LABEL E PLACEHOLDER DE EXEMPLO */}
+        {/* CAMPO DE SENHA COM LABE   L E PLACEHOLDER DE EXEMPLO */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Senha</label>
@@ -120,7 +120,7 @@ function Login() {
           <div className={errorPassword ? "input-error-wrapper" : ""}>
             <Input
               type="password"
-              placeholder="Digite sua senha (Mínimo 8 caracteres)"
+              placeholder="********"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);

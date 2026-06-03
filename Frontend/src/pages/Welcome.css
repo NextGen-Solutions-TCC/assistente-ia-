@@ -17,6 +17,7 @@
   background-color: #dcdcdc;
 }
 
+/* Lado Esquerdo (Escuro) */
 .welcome-left {
   flex: 1.1;
   background: radial-gradient(circle, #020617 1%, #1D2530 100%);
@@ -56,6 +57,7 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* Lado Direito (Claro) */
 .welcome-right {
   flex: 1;
   background-color: #dcdcdc; 
@@ -64,13 +66,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 50px 30px;
-  gap: 30px;
+  gap: 25px;
 }
 
+/* Indicadores Superiores */
 .carousel-indicators {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .indicator-bar {
@@ -86,17 +89,46 @@
   background-color: #1f35ff;
 }
 
+/* ESTRUTURA DO CARROSSEL COM AS SETAS LATERAIS */
+.carousel-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 620px;
+  gap: 20px;
+}
+
+.nav-arrow-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #1f35ff;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.nav-arrow-btn:hover {
+  background-color: rgba(31, 53, 255, 0.08);
+  transform: scale(1.15);
+}
+
 .slide-content {
   text-align: center;
-  width: 100%;
-  max-width: 500px; 
+  flex: 1;
 }
 
 .slide-content h1 {
   font-size: 38px;
   color: #111827;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   line-height: 1.2;
 }
 
@@ -105,39 +137,44 @@
 }
 
 .slide-content p {
-  font-size: 16px; 
+  font-size: 15px; 
   color: #4b5563;
   line-height: 1.6;
+  margin: 0;
 }
 
+/* GRID DE FEATURES - IGUAIS E LIMPOS */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr) !important;
   gap: 16px;
   width: 100%;
-  max-width: 500px; 
+  max-width: 520px; 
 }
 
 .feature-item {
   background-color: rgba(255, 255, 255, 0.88); 
   border: 1px solid #ced4da;
   border-radius: 12px; 
-  padding: 16px 18px; 
+  padding: 18px; 
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   font-size: 15px; 
   font-weight: 600;
   color: #212529;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  min-height: 68px; /* Garante tamanho idêntico em todos */
 }
 
 .feature-icon-img {
   width: 26px; 
   height: 26px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
+/* Botão de Acesso Principal */
 .access-btn {
   width: 100%;
   max-width: 340px;
@@ -161,6 +198,7 @@
   transform: scale(0.98);
 }
 
+/* Responsividade */
 @media (max-width: 1024px) {
   .slide-content h1 {
     font-size: 32px;
@@ -194,5 +232,9 @@
   
   .slide-content h1 {
     font-size: 28px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr !important;
   }
 }

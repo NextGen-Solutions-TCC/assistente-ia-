@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import *
-from rest_framework.decorators import action, permission_classes, api_view
+from rest_framework.decorators import action, permission_classes, api_view, authentication_classes #chabot-Gabriela
 from .serializers import *
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -13,6 +13,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse 
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+
+import requests #ChatBot- Gabriela
+import uuid #ChatBot - Gabriela
 
 
 from django.contrib.auth.signals import user_logged_in
@@ -41,7 +44,13 @@ def teste(request):
         "codigo": 200
 })
 
-
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def chatbot_ia(request):
+    return Response({
+        "success": True,
+        "message": "Rota da IA funcionando"
+    })
 
 
 class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automaticamente, não precisa criar uma view para cada ação
@@ -232,3 +241,46 @@ class LoginView(APIView):
             "success": False,
             "message": "Email ou senha inválidos"
         }, status=400)
+    
+@api_view(['POST'])
+def chatbot_ia(request):
+    pergunta = request.data.get("message")
+
+    if not pergunta:
+        return Response({
+            "success": False,
+            "message": "Mensagem não enviada"
+        }, status=400)
+
+    url = "http://localhost:7861/api/v1/run/02fffb41-c9dc-44d9-8398-94f88dcfc29d"
+
+    payload = {
+        "output_type": "chat",
+        "input_type": "chat",
+        "input_value": pergunta,
+        "session_id": str(uuid.uuid4())
+    }
+
+    headers = {
+        "x-api-key": "sk-LTvWC0SmabJ0JFunEnGCAJbBaEGJPnsyQxsXSjunzY0"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+
+        resultado = response.json()
+
+        mensagem = resultado["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+
+        return Response({
+            "success": True,
+            "message": mensagem
+        })
+
+    except Exception as e:
+        return Response({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+    

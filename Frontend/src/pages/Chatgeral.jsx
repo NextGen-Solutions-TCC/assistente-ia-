@@ -15,38 +15,45 @@ function ChatGeral() {
   };
 
   const handleSendMessage = async (messageText) => {
-    const textToSend = messageText || inputMessage;
-    if (!textToSend.trim()) return;
+  const textToSend = messageText || inputMessage;
+  if (!textToSend.trim()) return;
 
-    const userMessage = { sender: "user", text: textToSend };
-    setChatHistory((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsLoading(true);
+  setChatHistory((prev) => [...prev, { sender: "user", text: textToSend }]);
+  setInputMessage("");
+  setIsLoading(true);
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/chat/ask/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ message: textToSend }),
-      });
+  try {
+    const response = await fetch("http://localhost:8000/Api/chatbot/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: textToSend }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        setChatHistory((prev) => [...prev, { sender: "bot", text: data.response }]);
-      } else {
-        setChatHistory((prev) => [...prev, { sender: "bot", text: "Ops, deu um erro ao processar sua pergunta." }]);
-      }
-    } catch (error) {
-      console.error("Erro ao conectar com a IA:", error);
-      setChatHistory((prev) => [...prev, { sender: "bot", text: "Não consegui conectar ao servidor de IA." }]);
-    } finally {
-      setIsLoading(false);
+    console.log("STATUS:", response.status);
+    console.log("DATA:", data);
+
+    if (response.ok && data.success) {
+      setChatHistory((prev) => [...prev, { sender: "bot", text: data.message }]);
+    } else {
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: "bot", text: data.message || data.error || "Ops, deu um erro ao processar sua pergunta." },
+      ]);
     }
-  };
+  } catch (error) {
+    console.error("Erro ao conectar com a IA:", error);
+    setChatHistory((prev) => [
+      ...prev,
+      { sender: "bot", text: "Não consegui conectar ao servidor de IA." },
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="chat-container">

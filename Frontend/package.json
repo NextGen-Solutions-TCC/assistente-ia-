@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.16.2",
     "jose": "^6.2.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

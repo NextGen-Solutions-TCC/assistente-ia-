@@ -204,31 +204,27 @@ class ModeloIAViewSet(ModelViewSet):
     
 
 class LoginView(APIView):
- 
-    permission_classes = [AllowAny]
- 
     def post(self, request):
- 
-        email = request.data.get("email")
-        password = request.data.get("password")
- 
-        user = authenticate(
-            username=email,
-            password=password
-        )
- 
+        email    = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(
+                username=user_obj.username,  # busca pelo e-mail, autentica pelo username real
+                password=password
+            )
+        except User.DoesNotExist:
+            user = None
+
         if user is not None:
- 
             refresh = RefreshToken.for_user(user)
- 
             return Response({
-                "success": True,
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-                "message": "Login realizado com sucesso"
+                'access':  str(refresh.access_token),
+                'refresh': str(refresh),
             })
- 
-        return Response({
-            "success": False,
-            "message": "Email ou senha inválidos"
-        }, status=400)
+
+        return Response(
+            {'detail': 'E-mail ou senha incorretos.'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )

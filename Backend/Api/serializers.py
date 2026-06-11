@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Usuario, Conversa, Mensagem, ModeloIA
 
+
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
@@ -17,14 +18,14 @@ class RegisterSerializer(serializers.Serializer):
     data_criacao = serializers.DateTimeField(required=False)
 
     def create(self, validated_data):
-        # Criando usuário do Django (auth)
+    
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
 
-        # Criando usuário do seu sistema
+       
         usuario = Usuario.objects.create(
             user=user,
             nome=validated_data.get('nome', user.username),
@@ -40,15 +41,18 @@ class RegisterSerializer(serializers.Serializer):
 class ModeloIASerializer(serializers.ModelSerializer):
     class Meta:
         model = ModeloIA
-        fields = ['id_modelo', 'nome_modelo', 'versao', 'data_lançamento']
+        fields = ['id', 'nome_modelo', 'versao', 'data_lancamento']
+
 
 class ConversaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversa
-        fields = ['id_conversa', 'Id_usuario', 'Titulo']
-        read_only_fields = ['Id_usuario']
+        fields = ['id', 'usuario', 'titulo']
+        read_only_fields = ['usuario']
+
+
 
 class MensagemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mensagem
-        fields = ['ID_mensagem', 'ID_conversa', 'ID_modelo', 'Remetente', 'Texto']
+        fields = ['id', 'conversa', 'modelo', 'remetente', 'texto', 'data_envio']

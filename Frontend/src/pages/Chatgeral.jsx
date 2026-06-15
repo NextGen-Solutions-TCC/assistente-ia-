@@ -12,10 +12,12 @@ import enviar from "../assets/enviar.svg";
 import imobiliaria from "../assets/imobiliaria.svg";
 
 function ChatGeral() {
+  console.log("CHATGERAL CARREGADO");
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [inputMessage, setInputMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  
 
   const userLoggedName = localStorage.getItem("user_name") || "Letícia Souza";
 
@@ -31,47 +33,66 @@ function ChatGeral() {
   };
 
   const handleSendMessage = async (messageText) => {
-    const textToSend = messageText || inputMessage;
-    if (!textToSend.trim()) return;
+  console.log("ENTROU NA FUNÇÃO");
 
-    const userMessage = {
-      sender: "user",
-      text: textToSend,
-    };
+  const textToSend = messageText || inputMessage;
 
-    setChatHistory((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsLoading(true);
+  if (!textToSend.trim()) return;
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/chat/ask/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          message: textToSend,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setChatHistory((prev) => [
-          ...prev,
-          {
-            sender: "bot",
-            text: data.response,
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+  const userMessage = {
+    sender: "user",
+    text: textToSend,
   };
+
+  setChatHistory((prev) => [...prev, userMessage]);
+  setInputMessage("");
+
+  console.log("ANTES DO LOADING");
+  setIsLoading(true);
+  console.log("DEPOIS DO LOADING");
+
+  try {
+    console.log("VERSAO NOVA DO CHAT");
+    const response = await fetch("http://127.0.0.1:8000/Api/chatbot/", {
+      method: "POST",
+      headers: {
+  "Content-Type": "application/json",
+    },
+      body: JSON.stringify({
+        message: textToSend,
+      }),
+    });
+
+    console.log("STATUS:", response.status);
+
+    const data = await response.json();
+
+    console.log("DATA:", data);
+
+    if (response.ok) {
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: data.message,
+        },
+      ]);
+    }
+  } catch (error) {
+    console.error("ERRO:", error);
+
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        sender: "bot",
+        text: "Erro ao conectar com a IA.",
+      },
+    ]);
+  } finally {
+    console.log("FINALIZOU");
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="chat-container">

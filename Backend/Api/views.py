@@ -13,6 +13,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse 
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+import requests
+import uuid
+
 
 
 from django.contrib.auth.signals import user_logged_in
@@ -41,6 +44,60 @@ def teste(request):
         "codigo": 200
 })
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def chatbot_ia(request):
+
+    print("=== ENTREI NA CHATBOT_IA ===")
+
+    pergunta = request.data.get("message")
+
+    @api_view(['POST'])
+@permission_classes([AllowAny])
+def chatbot_ia(request):
+
+    print("CHEGOU NA IA")
+
+    return Response({
+        "success": True,
+        "message": "TESTE GABRIELA"
+    })
+
+    url = "http://localhost:7860/api/v1/run/02fffb41-c9dc-44d9-8398-94f88dcfc29d"
+    payload = {
+        "output_type": "chat",
+        "input_type": "chat",
+        "input_value": pergunta,
+        "session_id": str(uuid.uuid4())
+    }
+
+    headers = {
+        "x-api-key": "sk-vmwp8p77g12wMVMEXtJD37AUrVPoSHIyGEsRC-FfJl0"
+    }
+
+    try:
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers
+        )
+
+        response.raise_for_status()
+
+        resultado = response.json()
+
+        mensagem = resultado["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+
+        return Response({
+            "success": True,
+            "message": mensagem
+        })
+
+    except Exception as e:
+        return Response({
+            "success": False,
+            "error": str(e)
+        }, status=500)
 
 
 

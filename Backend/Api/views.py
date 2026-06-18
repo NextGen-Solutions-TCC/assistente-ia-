@@ -48,22 +48,16 @@ def teste(request):
 @permission_classes([AllowAny])
 def chatbot_ia(request):
 
-    print("=== ENTREI NA CHATBOT_IA ===")
-
     pergunta = request.data.get("message")
 
-    @api_view(['POST'])
-@permission_classes([AllowAny])
-def chatbot_ia(request):
-
-    print("CHEGOU NA IA")
-
-    return Response({
-        "success": True,
-        "message": "TESTE GABRIELA"
-    })
+    if not pergunta:
+        return Response({
+            "success": False,
+            "message": "Mensagem não enviada"
+        }, status=400)
 
     url = "http://localhost:7860/api/v1/run/02fffb41-c9dc-44d9-8398-94f88dcfc29d"
+
     payload = {
         "output_type": "chat",
         "input_type": "chat",
@@ -72,7 +66,7 @@ def chatbot_ia(request):
     }
 
     headers = {
-        "x-api-key": "sk-vmwp8p77g12wMVMEXtJD37AUrVPoSHIyGEsRC-FfJl0"
+        "x-api-key": "sk-JNTT_phFm89y7tdnEEPoacghbniUSYDMfg8Yo8Vf2rc"
     }
 
     try:
@@ -98,8 +92,7 @@ def chatbot_ia(request):
             "success": False,
             "error": str(e)
         }, status=500)
-
-
+    
 
 class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automaticamente, não precisa criar uma view para cada ação
     queryset = Usuario.objects.all()# define a queryset para o viewset, ou seja, os dados que serão retornados quando uma requisição for feita para a rota do usuário. O queryset é uma forma de filtrar os dados que serão retornados, por exemplo, para retornar apenas os usuários ativos ou para retornar apenas os usuários com um determinado tipo.

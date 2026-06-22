@@ -7,11 +7,11 @@ class Usuario(models.Model):
         ('user', 'User'),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) 
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='user')
     nome = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
-    senha = models.CharField(max_length=123)
+    senha = models.CharField(max_length=128, null=True, blank=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -37,12 +37,12 @@ class Mensagem(models.Model):
     conversa = models.ForeignKey(Conversa, on_delete=models.CASCADE)
     modelo = models.ForeignKey(ModeloIA, on_delete=models.SET_NULL, null=True)
     
-    remetente = models.CharField(max_length=50) # Ex: 'user' ou 'ai'
+    remetente = models.CharField(max_length=50) # 
     texto = models.TextField()
     data_envio = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.remetente}: {self.texto[:20]}..."
+    def __str__(self): 
+        return f"{self.remetente}: {self.texto[:20]}..." 
     
     
 # Create your models here.

@@ -128,8 +128,8 @@ class MensagemViewSet(ModelViewSet):
             return qs
             
         # Filtra as mensagens através da relação com a conversa e o usuário
-        # "conversa__usuario__user" segue o caminho: Mensagem -> Conversa -> Usuario -> User
-        return qs.filter(conversa__usuario__user=self.request.user)
+        # "conversa_usuario_user" segue o caminho: Mensagem -> Conversa -> Usuario -> User
+        return qs.filter(conversa_usuario_user=self.request.user)
 
     def perform_create(self, serializer):
     

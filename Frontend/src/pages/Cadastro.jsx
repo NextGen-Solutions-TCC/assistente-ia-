@@ -62,7 +62,6 @@ function Cadastro() {
       setErrorPassword("A senha é obrigatória");
       erroDetectado = true;
     } else if (password.length < 8) {
-      // Validação baseada no seu print "senha pequena"
       setErrorPassword("A senha deve ter no mínimo 8 caracteres");
       erroDetectado = true;
     }
@@ -72,7 +71,6 @@ function Cadastro() {
       erroDetectado = true;
     }
 
-    // Validação baseada no seu print "erros e condições"
     if (!agreeTerms) {
       setErrorTerms("Você precisa aceitar os termos para continuar");
       erroDetectado = true;
@@ -81,18 +79,21 @@ function Cadastro() {
     if (erroDetectado) return;
 
     try {
+      // Como o seu LoginView usa o email no lugar do username,
+      // enviamos o e-mail no campo username para manter consistência total no Django.
       const response = await fetch(
-        "http://127.0.0.1:8000/Api/auth/register/", // Aqui eu mudei a APi que estva com a minusculo mas a e register aplicação estava maiusculo
+        "http://127.0.0.1:8000/Api/auth/register/", //local host:8000/Api/auth/register/ é 
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: name,
-            email: email,
-            password: password,
-            re_password: confirmPassword,
+            username: email, // O serializer exige o username e sua login view busca por ele!
+            email: email,            
+            password: password,      
+            nome: name,
+            confirmar_password: confirmPassword,
           }),
         }
       );
@@ -103,12 +104,16 @@ function Cadastro() {
         // Redireciona de forma limpa sem alert em tela
         navigate("/login");
       } else {
-        // Mapeia erros vindos diretamente do banco de dados (Django)
-        if (data.username) setErrorName("Este nome de usuário já existe");
-        if (data.email) setErrorEmail("Este e-mail já está cadastrado");
-        if (data.password) setErrorPassword(data.password[0]);
-        if (!data.username && !data.email && !data.password) {
-          setErrorGeral("Erro ao realizar o cadastro. Verifique os dados.");
+        // Mapeia erros vindos diretamente do banco de dados (Django Rest Framework)
+        if (data.username) setErrorName("Nome de usuário inválido ou já existente.");
+        if (data.email) setErrorEmail("Este e-mail já está cadastrado.");
+        
+        if (data.password) {
+          setErrorPassword(Array.isArray(data.password) ? data.password[0] : data.password);
+        } else if (data.non_field_errors) {
+          setErrorGeral(data.non_field_errors[0]);
+        } else {
+          setErrorGeral("Erro ao realizar o cadastro. Verifique os dados ou mude o e-mail.");
         }
       }
     } catch (error) {
@@ -118,8 +123,8 @@ function Cadastro() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://127.0.0.1:8000/accounts/google/login/?process=connect";
-  };
+    window.location.href = "http://127.0.0.1:8000/accounts/google/login/callback/";
+  };
 
   return (
     <div className="container">
@@ -142,7 +147,7 @@ function Cadastro() {
           <div className={errorName ? "input-error-wrapper" : ""}>
             <Input
               type="text"
-              placeholder="Escreva seu nome (Ex: julia_reis)"
+              placeholder="Escreva seu nome completo"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);

@@ -5,7 +5,7 @@ from urllib.request import urlopen
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-^$#b-yihdqq%p_rnjro@+s_&q=6#w$f6@88d#7x++(_=$yb%bw'
+SECRET_KEY = 'django-insecure-^$#b-yihdqq%p_rnjro@+s_&q=6#w$f6@88d#7x++(_=$yb%bw' # retirar depois
 
 DEBUG = True
 
@@ -126,9 +126,9 @@ SOCIALACCOUNT_ADAPTER = 'Api.adapters.CustomSocialAccountAdapter'
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_REQUIRED = True #Arrumar email duplicado
 ACCOUNT_USERNAME_REQUIRED = False
 
-LOGIN_REDIRECT_URL = 'http://localhost:5173/Welcome'
+LOGIN_REDIRECT_URL = 'http://localhost:5173/Chatgeral'
 LOGOUT_REDIRECT_URL = 'http://localhost:5173/'
+LOGIN_REDIRECT_URL = '/accounts/profile/'

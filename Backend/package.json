@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "express-oauth2-jwt-bearer": "^1.8.0"
+    "express-oauth2-jwt-bearer": "^1.8.0",
+    "pg": "^8.21.0"
   }
 }

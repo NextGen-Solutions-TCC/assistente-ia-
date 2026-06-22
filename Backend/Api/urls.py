@@ -33,7 +33,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
 
     # Registro
-    path('register/', RegisterView.as_view(), name='register'), 
+    path('auth/register/', RegisterView.as_view()),  
 
     # Perfil protegido
     path('teste/', teste, name='teste'),

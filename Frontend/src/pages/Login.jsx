@@ -51,14 +51,14 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/login/", 
+        "http://127.0.0.1:8000/Api/login/",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: email,
+            email: email,
             password: password,
           }),
         }
@@ -68,11 +68,13 @@ function Login() {
 
       if (response.ok) {
         console.log("Sucesso:", data);
-        const token = data.access || data.access_token || data.key;
-        localStorage.setItem("token", token);
-        navigate("/chat"); 
+
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+
+        navigate("/chat");
       } else {
-        setErrorGeral("Email ou senha incorretos");
+        setErrorGeral(data.message || "Email ou senha incorretos");
       }
     } catch (error) {
       console.error("Erro na conexão:", error);
@@ -81,7 +83,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://127.0.0.1:8000/accounts/google/login/?process=login";
+    window.location.href = "http://127.0.0.1:8000/accounts/google/login/callback/";
   };
 
   return (
@@ -105,7 +107,7 @@ function Login() {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if(errorEmail) setErrorEmail("");
+                if (errorEmail) setErrorEmail("");
               }}
             />
           </div>
@@ -124,7 +126,7 @@ function Login() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if(errorPassword) setErrorPassword("");
+                if (errorPassword) setErrorPassword("");
               }}
             />
           </div>

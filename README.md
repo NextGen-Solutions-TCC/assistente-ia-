@@ -44,6 +44,13 @@ python manage.py migrate
 python manage.py runserver        # http://127.0.0.1:8000
 ```
 
+### Crie um usuário para ser acessado na UI
+```bash
+curl -X POST http://127.0.0.1:8000/Api/register/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "teste2", "email": "teste2@teste.com", "password": "senha123", "tipo": "user"}'
+```
+
 > `requirements.txt` é grande (inclui LangChain, Anthropic SDK, vector DBs, OCR, áudio). Use um virtualenv dedicado.
 
 ### Frontend

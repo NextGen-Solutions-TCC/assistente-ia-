@@ -77,6 +77,15 @@ function ChatGeral() {
           text: data.message,
         },
       ]);
+    } else {
+      const errorText = data?.error || data?.message || "Erro ao conectar com a IA.";
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: errorText,
+        },
+      ]);
     }
   } catch (error) {
     console.error("ERRO:", error);

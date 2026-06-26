@@ -1,0 +1,12 @@
+# Sistema operacional
+.DS_Store
+
+# IDEs e editores
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

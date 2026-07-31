@@ -38,7 +38,8 @@ assistente-ia-/
 
 ```bash
 cd Backend
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv 
+ .\.venv\Scripts\Activate
 pip install -r requirements.txt   # ~580 pacotes — demora na primeira vez
 python manage.py migrate
 python manage.py runserver        # http://127.0.0.1:8000

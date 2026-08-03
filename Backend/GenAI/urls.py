@@ -17,7 +17,7 @@ urlpatterns = [
     
     path('Api/', include('Api.urls')),
 
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('register/', include('Api.urls')),
 
     path('password-reset/confirm/<uidb64>/<token>/', 
          TemplateView.as_view(template_name="index.html"), 

@@ -164,6 +164,7 @@ body {
   background: rgba(255, 255, 255, .05);
 }
 
+.sidebar-action-btn.active,
 .sidebar-menu-item.active {
   background: #2a3347;
 }
@@ -196,7 +197,8 @@ body {
 .sidebar.collapsed .menu-text,
 .sidebar.collapsed .section-title,
 .sidebar.collapsed .brand-name,
-.sidebar.collapsed .user-name {
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .footer-chevron {
   display: none;
 }
 
@@ -207,19 +209,38 @@ body {
 }
 
 /* =========================================================
-   FOOTER
+   FOOTER DA SIDEBAR E MENU POPUP DO PERFIL
 ========================================================= */
+.sidebar-footer-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 .sidebar-footer {
   border-top: 1px solid rgba(255, 255, 255, .08);
   padding: 18px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  user-select: none;
 }
 
 .sidebar.collapsed .sidebar-footer {
   justify-content: center;
   padding: 18px 0;
+}
+
+.sidebar-footer:hover,
+.sidebar-footer.active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.footer-user-details {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .user-avatar {
@@ -239,6 +260,107 @@ body {
   color: white;
   font-size: 20px;
   font-weight: 500;
+}
+
+.footer-chevron {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.footer-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* =========================================================
+   CARD FLUTUANTE DE OPÇÕES DO PERFIL (POPOVER)
+========================================================= */
+.profile-popover-menu {
+  position: absolute;
+  bottom: 86px;
+  left: 12px;
+  right: 12px;
+  background: #1c2433; /* Fundo escuro oficial do design */
+  border-radius: 20px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.popover-user-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px 14px 12px;
+}
+
+.popover-user-name {
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.popover-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+.popover-item {
+  width: 100%;
+  height: 48px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.popover-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.popover-item-left {
+  display: flex;
+  align-items: center;
+}
+
+.popover-icon-box {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+}
+
+.popover-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.popover-text {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.popover-arrow-right {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
 }
 
 /* =========================================================
@@ -360,7 +482,7 @@ body {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  position: relative; /* Base para o botão absoluto interno */
+  position: relative;
   display: flex;
   align-items: center;
 }
@@ -371,7 +493,7 @@ body {
   border-radius: 24px;
   border: 1px solid #bdbdbd;
   background: #ececec;
-  padding: 0 80px 0 24px; /* Espaço na direita para o texto não ficar embaixo do ícone */
+  padding: 0 80px 0 24px;
   font-size: 20px;
   color: #555;
   outline: none;
@@ -381,14 +503,13 @@ body {
   color: #7c7c7c;
 }
 
-/* BOTÃO ENVIAR CORRIGIDO (VAZADO E EMBUTIDO) */
 .send-message-btn {
   position: absolute;
-  right: 20px; /* Alinha o ícone na extrema direita interna do input */
+  right: 20px;
   width: 44px;
   height: 44px;
   border: none;
-  background: transparent; /* Remove a caixa azul redonda anterior */
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -397,14 +518,93 @@ body {
 }
 
 .send-message-btn:hover {
-  transform: scale(1.1); /* Efeito discreto de feedback no hover */
+  transform: scale(1.1);
 }
 
-/* ÍCONE AJUSTADO EM TAMANHO PROPORCIONAL */
 .send-icon {
   width: 32px;
   height: 32px;
   object-fit: contain;
-  /* Filtro calibrado exatamente para a cor 0D2BF0 */
   filter: invert(13%) sepia(95%) saturate(5947%) hue-rotate(234deg) brightness(96%) contrast(101%);
+}
+
+/* =========================================================
+   TELA DE BUSCA REESTRUTURADA (COM BORDA BRANCA/CINZA)
+========================================================= */
+.search-chats-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 40px; 
+  padding: 40px;
+  background: #1e2633; 
+  border-radius: 24px; 
+  box-sizing: border-box;
+  height: calc(100% - 80px);
+}
+
+.search-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 16px;
+  width: 100%;
+}
+
+.search-header-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 400;
+  width: 100%;
+}
+
+.search-header-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.close-search-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.close-search-btn:hover {
+  color: #ffffff;
+}
+
+.search-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.folder-icon-wrapper {
+  margin-bottom: 20px;
+}
+
+.search-empty-state h2 {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0 0 6px 0;
+}
+
+.search-empty-state p {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0;
 }

@@ -13,9 +13,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse 
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-import requests
-import uuid
-
 
 
 from django.contrib.auth.signals import user_logged_in
@@ -44,55 +41,8 @@ def teste(request):
         "codigo": 200
 })
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def chatbot_ia(request):
 
-    pergunta = request.data.get("message")
 
-    if not pergunta:
-        return Response({
-            "success": False,
-            "message": "Mensagem não enviada"
-        }, status=400)
-
-    url = "http://localhost:7860/api/v1/run/02fffb41-c9dc-44d9-8398-94f88dcfc29d"
-
-    payload = {
-        "output_type": "chat",
-        "input_type": "chat",
-        "input_value": pergunta,
-        "session_id": str(uuid.uuid4())
-    }
-
-    headers = {
-        "x-api-key": "sk-JNTT_phFm89y7tdnEEPoacghbniUSYDMfg8Yo8Vf2rc"
-    }
-
-    try:
-        response = requests.post(
-            url,
-            json=payload,
-            headers=headers
-        )
-
-        response.raise_for_status()
-
-        resultado = response.json()
-
-        mensagem = resultado["outputs"][0]["outputs"][0]["results"]["message"]["text"]
-
-        return Response({
-            "success": True,
-            "message": mensagem
-        })
-
-    except Exception as e:
-        return Response({
-            "success": False,
-            "error": str(e)
-        }, status=500)
-    
 
 class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automaticamente, não precisa criar uma view para cada ação
     queryset = Usuario.objects.all()# define a queryset para o viewset, ou seja, os dados que serão retornados quando uma requisição for feita para a rota do usuário. O queryset é uma forma de filtrar os dados que serão retornados, por exemplo, para retornar apenas os usuários ativos ou para retornar apenas os usuários com um determinado tipo.
@@ -178,8 +128,8 @@ class MensagemViewSet(ModelViewSet):
             return qs
             
         # Filtra as mensagens através da relação com a conversa e o usuário
-        # "conversa__usuario__user" segue o caminho: Mensagem -> Conversa -> Usuario -> User
-        return qs.filter(conversa__usuario__user=self.request.user)
+        # "conversa_usuario_user" segue o caminho: Mensagem -> Conversa -> Usuario -> User
+        return qs.filter(conversa_usuario_user=self.request.user)
 
     def perform_create(self, serializer):
     
@@ -254,27 +204,41 @@ class ModeloIAViewSet(ModelViewSet):
     
 
 class LoginView(APIView):
+ 
+    permission_classes = [AllowAny]
+ 
     def post(self, request):
-        email    = request.data.get('email')
-        password = request.data.get('password')
-
-        try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(
-                username=user_obj.username,  # busca pelo e-mail, autentica pelo username real
-                password=password
-            )
-        except User.DoesNotExist:
-            user = None
-
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'access':  str(refresh.access_token),
-                'refresh': str(refresh),
-            })
-
-        return Response(
-            {'detail': 'E-mail ou senha incorretos.'},
-            status=status.HTTP_401_UNAUTHORIZED
+ 
+        email = request.data.get("email")
+        password = request.data.get("password")
+ 
+        user = authenticate(
+            username=email,
+            password=password
         )
+ 
+        if user is not None:
+ 
+            refresh = RefreshToken.for_user(user)
+ 
+            return Response({
+                "success": True,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "message": "Login realizado com sucesso"
+            })
+ 
+        return Response({
+            "success": False,
+            "message": "Email ou senha inválidos"
+        }, status=400)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) # Exige o Token JWT enviado pelo React
+def obter_usuario_atual(request):
+    return Response({
+        "username": request.user.username,
+        "email": request.user.email,
+        "nome": getattr(request.user, 'nome', request.user.first_name) # Pega o nome salvo
+    })

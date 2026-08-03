@@ -1,14 +1,11 @@
 from pathlib import Path
 from datetime import timedelta
-import os
 import json
 from urllib.request import urlopen
-from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure-^$#b-yihdqq%p_rnjro@+s_&q=6#w$f6@88d#7x++(_=$yb%bw'
+SECRET_KEY = 'django-insecure-^$#b-yihdqq%p_rnjro@+s_&q=6#w$f6@88d#7x++(_=$yb%bw' # retirar depois
 
 DEBUG = True
 
@@ -33,8 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'rest_framework',
     'rest_framework.authtoken',
-    'dj_rest_auth',               # ← adicionar
-    'dj_rest_auth.registration', 
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -127,26 +123,18 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_ADAPTER = 'Api.adapters.CustomSocialAccountAdapter'
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
-            'key': '',
-        },
-    }
-}
 
-LOGIN_REDIRECT_URL            = 'http://localhost:5173/welcome'
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
+# Força o login direto sem passar por telas de confirmação adicionais
+SOCIALACCOUNT_FORCE_SIGNUP = False
+
+# Garante que o Django use o e-mail do Google para encontrar um usuário existente
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_REQUIRED = True #Arrumar email duplicado
 ACCOUNT_USERNAME_REQUIRED = False
 
-LOGIN_REDIRECT_URL = 'http://localhost:5173/Welcome'
+# Onde o usuário vai cair após fazer login com sucesso
+LOGIN_REDIRECT_URL = 'http://localhost:5173/Chatgeral'
 LOGOUT_REDIRECT_URL = 'http://localhost:5173/'

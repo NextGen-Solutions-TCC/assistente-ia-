@@ -1,7 +1,7 @@
 import axios from 'axios';
  
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+const Api = axios.create({
+  baseURL: 'http://127.0.0.1:8000/Api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -9,7 +9,7 @@ const api = axios.create({
   }
 });
  
-api.interceptors.request.use(
+Api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -22,7 +22,7 @@ api.interceptors.request.use(
   }
 );
  
-api.interceptors.response.use(
+Api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
@@ -33,4 +33,4 @@ api.interceptors.response.use(
   }
 );
  
-export default api;
+export default Api;

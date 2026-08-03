@@ -51,14 +51,14 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/login/", 
+        "http://127.0.0.1:8000/Api/login/",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: email,
+            email: email,
             password: password,
           }),
         }
@@ -68,11 +68,13 @@ function Login() {
 
       if (response.ok) {
         console.log("Sucesso:", data);
-        const token = data.access || data.access_token || data.key;
-        localStorage.setItem("token", token);
-        navigate("/chat"); 
+
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+
+        navigate("/chat");
       } else {
-        setErrorGeral("Email ou senha incorretos");
+        setErrorGeral(data.message || "Email ou senha incorretos");
       }
     } catch (error) {
       console.error("Erro na conexão:", error);
@@ -101,17 +103,17 @@ function Login() {
           <div className={errorEmail ? "input-error-wrapper" : ""}>
             <Input
               type="email"
-              placeholder="nome@email.com"
+              placeholder="Digite seu e-mail (Ex: nome@email.com)"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if(errorEmail) setErrorEmail("");
+                if (errorEmail) setErrorEmail("");
               }}
             />
           </div>
         </div>
 
-        {/* CAMPO DE SENHA COM LABE   L E PLACEHOLDER DE EXEMPLO */}
+        {/* CAMPO DE SENHA COM LABEL E PLACEHOLDER DE EXEMPLO */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Senha</label>
@@ -120,11 +122,11 @@ function Login() {
           <div className={errorPassword ? "input-error-wrapper" : ""}>
             <Input
               type="password"
-              placeholder="********"
+              placeholder="Digite sua senha (Mínimo 8 caracteres)"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if(errorPassword) setErrorPassword("");
+                if (errorPassword) setErrorPassword("");
               }}
             />
           </div>

@@ -45,7 +45,7 @@ python manage.py migrate
 python manage.py runserver        # http://127.0.0.1:8000
 ```
 
-### Crie um usuário para ser acessado na UI
+### Crie um usuário para ser acessado na UI 
 ```bash
 curl -X POST http://127.0.0.1:8000/Api/register/ \
   -H "Content-Type: application/json" \

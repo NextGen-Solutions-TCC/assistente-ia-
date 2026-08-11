@@ -43,7 +43,6 @@ def teste(request):
 
 
 
-
 class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automaticamente, não precisa criar uma view para cada ação
     queryset = Usuario.objects.all()# define a queryset para o viewset, ou seja, os dados que serão retornados quando uma requisição for feita para a rota do usuário. O queryset é uma forma de filtrar os dados que serão retornados, por exemplo, para retornar apenas os usuários ativos ou para retornar apenas os usuários com um determinado tipo.
     serializer_class = UsuarioSerializer
@@ -205,7 +204,7 @@ class ModeloIAViewSet(ModelViewSet):
 
 class LoginView(APIView):
  
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny] # Permite que qualquer pessoa acesse a rota de login, mesmo sem estar autenticada. Isso é necessário porque o login é a porta de entrada para obter o token JWT, e se colocássemos IsAuthenticated aqui, ninguém conseguiria logar, já que não teriam um token válido ainda.
  
     def post(self, request):
  

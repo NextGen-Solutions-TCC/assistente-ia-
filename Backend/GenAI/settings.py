@@ -5,7 +5,7 @@ from urllib.request import urlopen
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-^$#b-yihdqq%p_rnjro@+s_&q=6#w$f6@88d#7x++(_=$yb%bw' # retirar depois
+SECRET_KEY = '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' # retirar depois
 
 DEBUG = True
 
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 ]
 
-SITE_ID = 2
+SITE_ID = 1
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -139,6 +139,6 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True #Arrumar email duplicado
 ACCOUNT_USERNAME_REQUIRED = False
 
-# Onde o usuário vai cair após fazer login com sucesso
-LOGIN_REDIRECT_URL = 'http://localhost:5173/Chatgeral'
+# Após o Google confirmar o login, cai nessa view (gera o JWT e só então manda pro front)
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/Api/social-redirect/'
 LOGOUT_REDIRECT_URL = 'http://localhost:5173/'

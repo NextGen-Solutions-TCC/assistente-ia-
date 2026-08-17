@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ChatGeral.css";
 import robot from "../assets/robot.svg";
 import robotMini from "../assets/minirobot.svg";
@@ -32,7 +32,33 @@ function ChatGeral() {
   // NOVO: Estado para abrir/fechar o Popup do Perfil
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const userLoggedName = localStorage.getItem("user_name") || "Letícia Souza";
+  const [userLoggedName, setUserLoggedName] = useState(
+    () => localStorage.getItem("user_name") || "Letícia Souza"
+  );
+
+  // Captura os dados enviados pelo backend após o login com Google
+  // (chegam na URL como ?access=...&refresh=...&nome=...) e salva
+  // no localStorage do mesmo jeito que o login manual já faz.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const access = params.get("access");
+    const refresh = params.get("refresh");
+    const nome = params.get("nome");
+
+    if (access && refresh) {
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
+
+      if (nome) {
+        localStorage.setItem("user_name", nome);
+        setUserLoggedName(nome);
+      }
+
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  const userDisplayName = userLoggedName.split(" ").slice(0, 2).join(" ");
 
   const userInitials = userLoggedName
     .split(" ")
@@ -250,7 +276,7 @@ function ChatGeral() {
               {/* Nome do Usuário no topo do card */}
               <div className="popover-user-info">
                 <div className="user-avatar">{userInitials}</div>
-                <span className="popover-user-name">{userLoggedName}</span>
+                <span className="popover-user-name">{userDisplayName}</span>
               </div>
 
               {/* Adicionar outra conta */}
@@ -314,7 +340,7 @@ function ChatGeral() {
           >
             <div className="footer-user-details">
               <div className="user-avatar">{userInitials}</div>
-              <span className="user-name">{userLoggedName}</span>
+              <span className="user-name">{userDisplayName}</span>
             </div>
             
             {/* Seta para cima indicando menu expansível */}

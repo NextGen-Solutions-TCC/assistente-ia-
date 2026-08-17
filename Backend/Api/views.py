@@ -10,9 +10,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .filters import *
 from django_filters.rest_framework import DjangoFilterBackend
-from django.http import JsonResponse 
+from django.http import JsonResponse
 from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import RefreshToken
+from urllib.parse import urlencode
 
 
 from django.contrib.auth.signals import user_logged_in
@@ -217,13 +219,17 @@ class LoginView(APIView):
         )
  
         if user is not None:
- 
+
             refresh = RefreshToken.for_user(user)
- 
+
+            usuario = Usuario.objects.filter(user=user).first()
+            nome = usuario.nome if usuario else user.username
+
             return Response({
                 "success": True,
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
+                "nome": nome,
                 "message": "Login realizado com sucesso"
             })
  
@@ -231,7 +237,37 @@ class LoginView(APIView):
             "success": False,
             "message": "Email ou senha inválidos"
         }, status=400)
-    
+
+
+@login_required
+def google_login_redirect(request):
+    """
+    Chamada pelo django-allauth logo após o Google confirmar o login
+    (autenticação por sessão). Aqui geramos o JWT do usuário e mandamos
+    ele de volta pro front já com os dados na URL, do mesmo jeito que
+    o LoginView normal devolve no corpo da resposta.
+    """
+    user = request.user
+
+    usuario, _ = Usuario.objects.get_or_create(
+        user=user,
+        defaults={
+            'nome': f"{user.first_name} {user.last_name}".strip() or user.email,
+            'email': user.email,
+            'senha': '',
+        }
+    )
+
+    refresh = RefreshToken.for_user(user)
+
+    params = urlencode({
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+        "nome": usuario.nome,
+    })
+
+    return redirect(f"http://localhost:5173/chat?{params}")
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) # Exige o Token JWT enviado pelo React

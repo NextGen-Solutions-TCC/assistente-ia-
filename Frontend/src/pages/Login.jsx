@@ -71,6 +71,7 @@ function Login() {
 
         localStorage.setItem("access", data.access);
         localStorage.setItem("refresh", data.refresh);
+        localStorage.setItem("user_name", data.nome);
 
         navigate("/chat");
       } else {

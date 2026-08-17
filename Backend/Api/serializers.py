@@ -25,7 +25,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'password',
-            'confirmar_password'
+            'confirmar_password',
+            'nome'
         ]
 
     def validate_email(self, value):
@@ -59,6 +60,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         username = validated_data.pop('username')
         email = validated_data.pop('email')
         password = validated_data.pop('password')
+        nome = validated_data.pop('nome')
 
         user = User.objects.create_user(
             username=username,
@@ -68,7 +70,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         usuario = Usuario.objects.create(
             user=user,
-            nome=username,
+            nome=nome,
             email=email
         )
 

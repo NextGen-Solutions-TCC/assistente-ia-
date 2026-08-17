@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ChatGeral.css";
+import SettingsModal from "../components/SettingsModal";
 import robot from "../assets/robot.svg";
 import robotMini from "../assets/minirobot.svg";
 import menu from "../assets/menu.svg";
@@ -20,7 +22,9 @@ import setaCimaIcon from "../assets/seta-cima.svg";
 
 function ChatGeral() {
   console.log("CHATGERAL CARREGADO");
+  const navigate = useNavigate();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -300,7 +304,13 @@ function ChatGeral() {
               </button>
 
               {/* Configurações */}
-              <button className="popover-item" onClick={() => console.log("Abrir Configurações")}>
+              <button
+                className="popover-item"
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  setIsSettingsOpen(true);
+                }}
+              >
                 <div className="popover-icon-box">
                   {<img src={configIcon} alt="configurações" className="popover-icon" />}
                   <span></span>
@@ -322,7 +332,15 @@ function ChatGeral() {
               </button>
 
               {/* Sair */}
-              <button className="popover-item logout" onClick={() => console.log("Sair")}>
+              <button
+                className="popover-item logout"
+                onClick={() => {
+                  localStorage.removeItem("access");
+                  localStorage.removeItem("refresh");
+                  localStorage.removeItem("user_name");
+                  navigate("/login");
+                }}
+              >
                 <div className="popover-icon-box">
                   {<img src={sairIcon} alt="sair" className="popover-icon" />}
                   <span></span>
@@ -438,6 +456,8 @@ function ChatGeral() {
           </>
         )}
       </main>
+
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }

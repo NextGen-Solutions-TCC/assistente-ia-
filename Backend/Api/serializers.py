@@ -12,6 +12,14 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PerfilSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Usuario
+        fields = ['id', 'nome', 'email', 'tipo', 'data_criacao']
+        read_only_fields = ['id', 'email', 'tipo', 'data_criacao']
+
+
 class RegisterSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(write_only=True)

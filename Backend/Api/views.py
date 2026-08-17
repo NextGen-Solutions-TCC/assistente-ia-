@@ -13,6 +13,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from urllib.parse import urlencode
 
@@ -63,12 +65,12 @@ class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automati
    
     def get_serializer_class(self):
         if self.action == "me":
-            return UsuarioSerializer
+            return PerfilSerializer
         return super().get_serializer_class()
-   
+
     @action(
         detail=False,
-        methods=['get'],
+        methods=['get', 'patch'],
         url_path="me",
         permission_classes=[IsAuthenticated]
     )
@@ -76,10 +78,112 @@ class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automati
         usuario = Usuario.objects.filter(user=request.user).first()
         if not usuario:
             return Response({"detail":"Perfil de usuário não encontrado."}, status=404)
-       
+
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(usuario, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
         serializer = self.get_serializer(usuario)
         return Response(serializer.data)
-   
+
+    @action(
+        detail=False,
+        methods=['post'],
+        url_path="alterar-senha",
+        permission_classes=[IsAuthenticated]
+    )
+    def alterar_senha(self, request):
+        senha_atual = request.data.get('senha_atual')
+        nova_senha = request.data.get('nova_senha')
+        confirmar_senha = request.data.get('confirmar_senha')
+
+        if not request.user.check_password(senha_atual or ''):
+            return Response({"detail": "Senha atual incorreta."}, status=400)
+
+        if not nova_senha or nova_senha != confirmar_senha:
+            return Response({"detail": "As novas senhas não coincidem."}, status=400)
+
+        try:
+            validate_password(nova_senha, user=request.user)
+        except DjangoValidationError as exc:
+            return Response({"detail": list(exc.messages)}, status=400)
+
+        request.user.set_password(nova_senha)
+        request.user.save()
+
+        return Response({"detail": "Senha alterada com sucesso."})
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path="exportar-dados",
+        permission_classes=[IsAuthenticated]
+    )
+    def exportar_dados(self, request):
+        usuario = Usuario.objects.filter(user=request.user).first()
+        if not usuario:
+            return Response({"detail": "Perfil de usuário não encontrado."}, status=404)
+
+        conversas = Conversa.objects.filter(usuario=usuario)
+
+        dados = {
+            "perfil": {
+                "nome": usuario.nome,
+                "email": usuario.email,
+                "data_criacao": usuario.data_criacao,
+            },
+            "conversas": [
+                {
+                    "id": conversa.id,
+                    "titulo": conversa.titulo,
+                    "mensagens": [
+                        {
+                            "remetente": mensagem.remetente,
+                            "texto": mensagem.texto,
+                            "data_envio": mensagem.data_envio,
+                        }
+                        for mensagem in conversa.mensagem_set.all()
+                    ],
+                }
+                for conversa in conversas
+            ],
+        }
+
+        response = JsonResponse(dados)
+        response["Content-Disposition"] = 'attachment; filename="meus_dados.json"'
+        return response
+
+    @action(
+        detail=False,
+        methods=['delete'],
+        url_path="apagar-conversas",
+        permission_classes=[IsAuthenticated]
+    )
+    def apagar_conversas(self, request):
+        usuario = Usuario.objects.filter(user=request.user).first()
+        if not usuario:
+            return Response({"detail": "Perfil de usuário não encontrado."}, status=404)
+
+        quantidade, _ = Conversa.objects.filter(usuario=usuario).delete()
+        return Response({"detail": "Conversas apagadas com sucesso.", "quantidade": quantidade})
+
+    @action(
+        detail=False,
+        methods=['delete'],
+        url_path="excluir-conta",
+        permission_classes=[IsAuthenticated]
+    )
+    def excluir_conta(self, request):
+        senha = request.data.get('senha')
+
+        if not senha or not request.user.check_password(senha):
+            return Response({"detail": "Senha incorreta."}, status=400)
+
+        request.user.delete()
+        return Response({"detail": "Conta excluída com sucesso."})
+
     @action(
         detail=False,
         methods=['get'],

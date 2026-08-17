@@ -72,6 +72,15 @@ function ChatGeral() {
     const textToSend = messageText || inputMessage;
     if (!textToSend.trim()) return;
 
+     const token = localStorage.getItem("access");
+
+  console.log("========== CHATBOT ==========");
+  console.log("TOKEN EXISTE:", !!token);
+  console.log("TOKEN LENGTH:", token?.length);
+  console.log("TOKEN:", token);
+  console.log("=============================");
+
+
     const userMessage = {
       sender: "user",
       text: textToSend,
@@ -82,16 +91,24 @@ function ChatGeral() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/Api/chatbot/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: textToSend,
-          context: activeProduct
-        }),
-      });
+      const token = localStorage.getItem("access");
+
+console.log("TOKEN DO CHAT:", token ? "TOKEN ENCONTRADO" : "TOKEN NÃO ENCONTRADO");
+
+const response = await fetch(
+  "http://127.0.0.1:8000/Api/chatbot/",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      message: textToSend,
+      context: activeProduct,
+    }),
+  }
+);
 
       const data = await response.json();
 

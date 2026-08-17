@@ -124,17 +124,22 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_ADAPTER = 'Api.adapters.CustomSocialAccountAdapter'
 
-# Força o login direto sem passar por telas de confirmação adicionais
-SOCIALACCOUNT_FORCE_SIGNUP = False
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    },
+}
 
-# Garante que o Django use o e-mail do Google para encontrar um usuário existente
+SOCIALACCOUNT_FORCE_SIGNUP = False
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True #Arrumar email duplicado
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 
-# Onde o usuário vai cair após fazer login com sucesso
-LOGIN_REDIRECT_URL = 'http://localhost:5173/Chatgeral'
+LOGIN_REDIRECT_URL = 'http://localhost:5173/Welcome'
 LOGOUT_REDIRECT_URL = 'http://localhost:5173/'

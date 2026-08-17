@@ -1,29 +1,47 @@
-# # seu_app/services.py
-# import requests'
+import os
+import uuid
+import requests
+from dotenv import load_dotenv
 
-# def obter_token_jumpad():
-#     url = "URL_DO_SEU_JUMPAD/api/token"  # Substitua pela URL real que está na doc
-#     payload = {
-#         'username': 'seu_usuario',
-#         'password': 'sua_senha',
-#         'grant_type': 'password'
-#     }
-#     try:
-#         response = requests.post(url, data=payload)
-#         response.raise_for_status() # Avisa se a senha estiver errada ou o site cair
-#         return response.json().get('access_token')
-#     except Exception as e:
-#         print(f"Erro ao conectar no Jumpad: {e}")
-#         return None
+load_dotenv()
 
-# def enviar_pergunta_jumpad(texto_usuario):
-#     token = obter_token_jumpad()
-#     if not token:
-#         return "Erro de autenticação com a IA."
 
-#     url = "URL_DO_SEU_JUMPAD/api/chats"
-#     headers = {'Authorization': f'Bearer {token}'}
-#     data = {"message": texto_usuario}
+def enviar_pergunta_langflow(pergunta):
+    langflow_url = os.getenv("LANGFLOW_URL")
+    flow_id = os.getenv("LANGFLOW_FLOW_ID")
+    api_key = os.getenv("LANGFLOW_API_KEY")
 
-#     response = requests.post(url, json=data, headers=headers)
-#     return response.json().get('response') # Ajuste conforme o JSON que a API devolve
+    if not langflow_url or not flow_id or not api_key:
+        raise Exception("Configuração do Langflow não encontrada no .env")
+
+    url = f"{langflow_url}/api/v1/run/{flow_id}"
+
+    payload = {
+        "output_type": "chat",
+        "input_type": "chat",
+        "input_value": pergunta,
+        "session_id": str(uuid.uuid4()),
+    }
+
+    headers = {
+        "x-api-key": api_key,
+        "Content-Type": "application/json",
+    }
+
+    response = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=120,
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    try:
+        return data["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+    except (KeyError, IndexError, TypeError):
+        raise Exception(
+            f"Resposta inesperada do Langflow: {data}"
+        )

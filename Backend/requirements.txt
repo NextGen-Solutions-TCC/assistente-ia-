@@ -22,3 +22,11 @@ gunicorn>=21.0,<27
 
 #criptography
 cryptography>=49.0,<50
+
+# IA / Langflow
+langflow==1.9.5
+chromadb==1.1.0
+langchain==1.2.18
+langchain-community==0.4.1
+langchain-chroma==0.2.6
+

@@ -1,12 +1,42 @@
-# Sistema operacional
-.DS_Store
+# Environment
+.env
+Api/.env
+*.env
 
-# IDEs e editores
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local database
+db.sqlite3
+*.sqlite3
+
+# Logs
+*.log
+
+# Langflow / vector databases
+chroma_db/
+
+# Django static/media
+staticfiles/
+media/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
 .vscode/
-!.vscode/extensions.json
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# OS
+.DS_Store
+Thumbs.db

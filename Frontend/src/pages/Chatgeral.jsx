@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./ChatGeral.css";
+
 import robot from "../assets/robot.svg";
 import robotMini from "../assets/minirobot.svg";
 import menu from "../assets/menu.svg";
@@ -14,12 +15,10 @@ import maisIcon from "../assets/mais.svg";
 import perfilIcon from "../assets/perfil.svg";
 import configIcon from "../assets/configuracoes.svg";
 import ajudaIcon from "../assets/ajuda.svg";
-import setaDireitaIcon from "../assets/seta-direita.svg";
 import sairIcon from "../assets/sair.svg";
 import setaCimaIcon from "../assets/seta-cima.svg";
 
 function ChatGeral() {
-  console.log("CHATGERAL CARREGADO");
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [inputMessage, setInputMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -28,9 +27,10 @@ function ChatGeral() {
   
   const [isSearching, setIsSearching] = useState(false);
   const [searchChatQuery, setSearchChatQuery] = useState("");
-
-  // NOVO: Estado para abrir/fechar o Popup do Perfil
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const messagesEndRef = useRef(null);
+  const popoverRef = useRef(null);
 
   const userLoggedName = localStorage.getItem("user_name") || "Letícia Souza";
 
@@ -40,6 +40,22 @@ function ChatGeral() {
     .join("")
     .substring(0, 2)
     .toUpperCase();
+
+  // Rolar para o final do chat ao receber mensagens
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, isLoading]);
+
+  // Fechar o Popover do perfil ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarExpanded(!isSidebarExpanded);
@@ -53,10 +69,17 @@ function ChatGeral() {
   };
 
   const handleSendMessage = async (messageText) => {
-    console.log("ENTROU NA FUNÇÃO");
-
     const textToSend = messageText || inputMessage;
     if (!textToSend.trim()) return;
+
+     const token = localStorage.getItem("access");
+
+  console.log("========== CHATBOT ==========");
+  console.log("TOKEN EXISTE:", !!token);
+  console.log("TOKEN LENGTH:", token?.length);
+  console.log("TOKEN:", token);
+  console.log("=============================");
+
 
     const userMessage = {
       sender: "user",
@@ -68,16 +91,24 @@ function ChatGeral() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/Api/chatbot/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: textToSend,
-          context: activeProduct
-        }),
-      });
+      const token = localStorage.getItem("access");
+
+console.log("TOKEN DO CHAT:", token ? "TOKEN ENCONTRADO" : "TOKEN NÃO ENCONTRADO");
+
+const response = await fetch(
+  "http://127.0.0.1:8000/Api/chatbot/",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      message: textToSend,
+      context: activeProduct,
+    }),
+  }
+);
 
       const data = await response.json();
 
@@ -134,7 +165,7 @@ function ChatGeral() {
   return (
     <div className="chat-container">
       
-      {/* SIDEBAR DINÂMICA */}
+      {/* SIDEBAR */}
       <aside className={`sidebar ${isSidebarExpanded ? "expanded" : "collapsed"}`}>
         
         {/* HEADER */}
@@ -241,73 +272,57 @@ function ChatGeral() {
         </div>
 
         {/* FOOTER DO USUÁRIO & POPUP DE PERFIL */}
-        <div className="sidebar-footer-wrapper">
+        <div className="sidebar-footer-wrapper" ref={popoverRef}>
           
-          {/* POPUP FLUTUANTE DE OPÇÕES DO PERFIL */}
           {isProfileMenuOpen && (
             <div className="profile-popover-menu">
-              
-              {/* Nome do Usuário no topo do card */}
               <div className="popover-user-info">
                 <div className="user-avatar">{userInitials}</div>
                 <span className="popover-user-name">{userLoggedName}</span>
               </div>
 
-              {/* Adicionar outra conta */}
               <button className="popover-item" onClick={() => console.log("Adicionar Conta")}>
                 <div className="popover-icon-box">
-                  { <img src={maisIcon} alt="adicionar" className="popover-icon" />}
-                  <span></span>
+                  <img src={maisIcon} alt="adicionar" className="popover-icon" />
                 </div>
                 <span className="popover-text">Adicionar outra conta</span>
               </button>
 
               <div className="popover-divider"></div>
 
-              {/* Perfil */}
               <button className="popover-item" onClick={() => console.log("Abrir Perfil")}>
                 <div className="popover-icon-box">
-                  {<img src={perfilIcon} alt="perfil" className="popover-icon" />}
-                  <span></span>
+                  <img src={perfilIcon} alt="perfil" className="popover-icon" />
                 </div>
                 <span className="popover-text">Perfil</span>
               </button>
 
-              {/* Configurações */}
               <button className="popover-item" onClick={() => console.log("Abrir Configurações")}>
                 <div className="popover-icon-box">
-                  {<img src={configIcon} alt="configurações" className="popover-icon" />}
-                  <span></span>
+                  <img src={configIcon} alt="configurações" className="popover-icon" />
                 </div>
                 <span className="popover-text">Configurações</span>
               </button>
 
-              {/* Ajuda (com Seta na Direita) */}
               <button className="popover-item justify-between" onClick={() => console.log("Abrir Ajuda")}>
                 <div className="popover-item-left">
                   <div className="popover-icon-box">
-                    {<img src={ajudaIcon} alt="ajuda" className="popover-icon" />}
-                    <span></span>
+                    <img src={ajudaIcon} alt="ajuda" className="popover-icon" />
                   </div>
                   <span className="popover-text">Ajuda</span>
                 </div>
-                {/* <img src={setaDireitaIcon} alt="seta" className="popover-arrow-right" /> */}
                 <span className="popover-arrow-right">❯</span>
               </button>
 
-              {/* Sair */}
               <button className="popover-item logout" onClick={() => console.log("Sair")}>
                 <div className="popover-icon-box">
-                  {<img src={sairIcon} alt="sair" className="popover-icon" />}
-                  <span></span>
+                  <img src={sairIcon} alt="sair" className="popover-icon" />
                 </div>
                 <span className="popover-text">Sair</span>
               </button>
-
             </div>
           )}
 
-          {/* RODAPÉ FIXO NA SIDEBAR QUE ABRE O MENU */}
           <div 
             className={`sidebar-footer ${isProfileMenuOpen ? "active" : ""}`}
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
@@ -317,11 +332,9 @@ function ChatGeral() {
               <span className="user-name">{userLoggedName}</span>
             </div>
             
-            {/* Seta para cima indicando menu expansível */}
             {isSidebarExpanded && (
               <div className={`footer-chevron ${isProfileMenuOpen ? "open" : ""}`}>
-                {<img src={setaCimaIcon} alt="chevron" />}
-                
+                <img src={setaCimaIcon} alt="chevron" />
               </div>
             )}
           </div>
@@ -391,6 +404,7 @@ function ChatGeral() {
                       <div className="message-bubble bot">Digitando...</div>
                     </div>
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
@@ -402,7 +416,12 @@ function ChatGeral() {
                   placeholder="Pergunte alguma coisa..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
                 />
                 <button className="send-message-btn" onClick={() => handleSendMessage()}>
                   <img src={enviar} alt="enviar" className="send-icon" />

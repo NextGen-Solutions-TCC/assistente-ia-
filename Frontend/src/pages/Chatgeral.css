@@ -608,3 +608,11 @@ body {
   font-weight: 400;
   margin: 0;
 }
+
+/* Trata o Popover quando a sidebar estiver em modo 'collapsed' */
+.sidebar.collapsed .profile-popover-menu {
+  left: 98px;
+  right: auto;
+  width: 260px;
+  bottom: 20px;
+}

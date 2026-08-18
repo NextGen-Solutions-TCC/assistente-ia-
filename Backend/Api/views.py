@@ -9,10 +9,12 @@ from .serializers import *
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .filters import *
+from .services import enviar_pergunta_langflow
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse 
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .services import enviar_pergunta_langflow
 
 
 from django.contrib.auth.signals import user_logged_in
@@ -94,7 +96,8 @@ class UsuarioViewSet(ModelViewSet): # viewset serve para criar as rotas automati
  
 class RegisterView(APIView):
 
-    permission_classes = [AllowAny] # permite que qualquer pessoa que ainda não tem o acesso entre na rota de registro, ou seja, não exige autenticação para acessar essa view. Isso é importante porque, se colocássemos IsAuthenticated aqui, ninguém conseguiria se registrar, já que o registro é a porta de entrada para obter acesso ao sistema. Portanto, AllowAny é a escolha correta para permitir que novos usuários criem suas contas sem precisar estar autenticados previamente.
+    permission_classes = [AllowAny] 
+
 
     def post(self, request):
 
@@ -242,3 +245,36 @@ def obter_usuario_atual(request):
         "email": request.user.email,
         "nome": getattr(request.user, 'nome', request.user.first_name) # Pega o nome salvo
     })
+
+class ChatbotView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        pergunta = request.data.get("message")
+
+        if not pergunta:
+            return Response(
+                {"error": "A mensagem é obrigatória."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            resposta = enviar_pergunta_langflow(pergunta)
+
+            return Response({
+                "success": True,
+                "message": resposta
+            })
+
+        except Exception as e:
+            print(f"ERRO LANGFLOW: {e}")
+
+            return Response(
+                {
+                    "success": False,
+                    "error": "Não foi possível consultar a IA."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

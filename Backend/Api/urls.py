@@ -12,7 +12,8 @@ from .views import (
     ConversaViewSet,
     ModeloIAViewSet,
     teste,
-    LoginView
+    LoginView,
+    ChatbotView
 )
 
 # Router principal
@@ -40,4 +41,7 @@ urlpatterns = [
 
     # Rotas automáticas do router
     path('', include(router.urls)),
+
+    # Rotas para a ia
+    path('chatbot/', ChatbotView.as_view(), name='chatbot'),
 ]

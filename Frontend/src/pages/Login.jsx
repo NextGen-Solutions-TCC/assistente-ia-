@@ -64,18 +64,29 @@ function Login() {
         }
       );
 
-      const data = await response.json();
+     const data = await response.json();
 
-      if (response.ok) {
-        console.log("Sucesso:", data);
+console.log("RESPOSTA LOGIN:", data);
+console.log("STATUS:", response.status);
+console.log("ACCESS RECEBIDO:", data.access);
 
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
+if (response.ok) {
+  console.log("LOGIN OK");
+  console.log("ACCESS RECEBIDO:", !!data.access);
 
-        navigate("/chat");
-      } else {
-        setErrorGeral(data.message || "Email ou senha incorretos");
-      }
+  localStorage.setItem("access", data.access);
+  localStorage.setItem("refresh", data.refresh);
+
+  console.log(
+    "ACCESS SALVO:",
+    localStorage.getItem("access") ? "SIM" : "NÃO"
+  );
+
+  navigate("/chat");
+} else {
+  console.log("LOGIN DEU ERRO:", data);
+  setErrorGeral(data.message || "Email ou senha incorretos");
+}
     } catch (error) {
       console.error("Erro na conexão:", error);
       setErrorGeral("Não foi possível conectar ao servidor.");

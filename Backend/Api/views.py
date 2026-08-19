@@ -1,22 +1,27 @@
-from django.shortcuts import render, redirect
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import *
-from rest_framework.decorators import action, permission_classes, api_view
-from .serializers import *
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .filters import *
-from django_filters.rest_framework import DjangoFilterBackend
-from django.http import JsonResponse 
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
-
-
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import status
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+
+from .filters import *
+from .models import *
+from .serializers import *
 
 @receiver(user_logged_in)
 def sinal_login_sucesso(sender, request, user, **kwargs):
@@ -109,7 +114,6 @@ class RegisterView(APIView):
         )
 
 
-
 class MensagemViewSet(ModelViewSet):
     queryset = Mensagem.objects.all()
     serializer_class = MensagemSerializer
@@ -144,8 +148,6 @@ class MensagemViewSet(ModelViewSet):
         serializer.save()
 
 
-
-
 class ConversaViewSet(ModelViewSet):
 
     queryset = Conversa.objects.all()
@@ -174,9 +176,6 @@ class ConversaViewSet(ModelViewSet):
         # Busca o perfil do usuário logado
         usuario_perfil = Usuario.objects.filter(user=self.request.user).first()
         serializer.save(usuario=usuario_perfil)
-
-
-
 
 
 class ModeloIAViewSet(ModelViewSet):
@@ -232,7 +231,7 @@ class LoginView(APIView):
             "success": False,
             "message": "Email ou senha inválidos"
         }, status=400)
-    
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) # Exige o Token JWT enviado pelo React

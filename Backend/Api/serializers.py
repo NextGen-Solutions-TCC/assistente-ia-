@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import IntegrityError, transaction
 
 from .models import Usuario, Conversa, Mensagem, ModeloIA
 
@@ -48,7 +50,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
 
-        validate_password(value)
+        try:
+            validate_password(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(list(exc.messages))
 
         return value
 
@@ -70,17 +75,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         nome = validated_data.pop('nome')
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
-        )
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password
+                )
 
-        usuario = Usuario.objects.create(
-            user=user,
-            nome=nome,
-            email=email
-        )
+                usuario = Usuario.objects.create(
+                    user=user,
+                    nome=nome,
+                    email=email
+                )
+        except IntegrityError:
+            raise serializers.ValidationError(
+                "Não foi possível criar o usuário. Nome de usuário ou email já em uso."
+            )
 
         return usuario
 

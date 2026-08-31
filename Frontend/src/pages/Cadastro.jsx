@@ -8,6 +8,8 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
 
+import Api from "../services/Api"; 
+
 function Cadastro() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -16,7 +18,6 @@ function Cadastro() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  // ESTADOS DE ERRO PARA EXIBIÇÃO NO CARD
   const [errorName, setErrorName] = useState("");
   const [errorEmail, setErrorEmail] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
@@ -29,7 +30,6 @@ function Cadastro() {
   };
 
   const handleCadastro = async () => {
-    // Resetar todos os erros a cada nova tentativa de submissão
     setErrorName("");
     setErrorEmail("");
     setErrorPassword("");
@@ -39,7 +39,6 @@ function Cadastro() {
 
     let erroDetectado = false;
 
-    // 1. Validação Geral de Campos Vazios
     if (!name && !email && !password && !confirmPassword) {
       setErrorGeral("Preencha todos os campos para continuar");
       return;
@@ -79,32 +78,27 @@ function Cadastro() {
     if (erroDetectado) return;
 
     try {
-      // Como o seu LoginView usa o email no lugar do username,
-      // enviamos o e-mail no campo username para manter consistência total no Django.
-      const response = await fetch(
-        "http://127.0.0.1:8000/Api/auth/register/", //local host:8000/Api/auth/register/ é 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: email, // O serializer exige o username e sua login view busca por ele!
-            email: email,            
-            password: password,      
-            nome: name,
-            confirmar_password: confirmPassword,
-          }),
-        }
-      );
+      await Api.post("auth/register/", {
+        username: email,
+        email: email,
+        password: password,
+        nome: name,
+        confirmar_password: confirmPassword,
+      });
 
-      const data = await response.json();
+      navigate("/login");
 
-      if (response.ok) {
-        // Redireciona de forma limpa sem alert em tela
-        navigate("/login");
-      } else {
-        // Mapeia erros vindos diretamente do banco de dados (Django Rest Framework)
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+
+      if (!error.response || error.response.status === 500) {
+        navigate("/erro-servidor");
+        return;
+      }
+
+      const data = error.response.data;
+
+      if (data) {
         if (data.username) setErrorName("Nome de usuário inválido ou já existente.");
         if (data.email) setErrorEmail("Este e-mail já está cadastrado.");
         
@@ -112,33 +106,28 @@ function Cadastro() {
           setErrorPassword(Array.isArray(data.password) ? data.password[0] : data.password);
         } else if (data.non_field_errors) {
           setErrorGeral(data.non_field_errors[0]);
+        } else if (data.detail) {
+          setErrorGeral(data.detail);
         } else {
-          setErrorGeral("Erro ao realizar o cadastro. Verifique os dados ou mude o e-mail.");
+          setErrorGeral("Erro ao realizar o cadastro. Verifique os dados fornecidos.");
         }
       }
-    } catch (error) {
-      console.error("Erro na conexão:", error);
-      setErrorGeral("Não foi possível conectar ao servidor.");
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://127.0.0.1:8000/accounts/google/login/?process=login";
-  };
+    window.location.href = "http://127.0.0.1:8000/accounts/google/login/?process=login";
+  };
 
   return (
     <div className="container">
       <Card>
-        <div className="robot-circle-blue">
-          <img src={robot} alt="robot" className="icon-blue" />
-        </div>
+        <img src={robot} alt="robot" className="icon" />
         
         <h2>Bem vindo ao <span>CADASTRO</span></h2>
 
-        {/* MENSAGEM DE ERRO GLOBAL */}
         {errorGeral && <span className="error-message-inline geral">{errorGeral}</span>}
 
-        {/* CAMPO: NOME */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Nome Completo</label>
@@ -157,7 +146,6 @@ function Cadastro() {
           </div>
         </div>
 
-        {/* CAMPO: EMAIL */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">E-mail</label>
@@ -176,7 +164,6 @@ function Cadastro() {
           </div>
         </div>
 
-        {/* CAMPO: SENHA */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Senha</label>
@@ -195,7 +182,6 @@ function Cadastro() {
           </div>
         </div>
 
-        {/* CAMPO: CONFIRMAR SENHA */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Confirmar senha</label>
@@ -214,7 +200,6 @@ function Cadastro() {
           </div>
         </div>
 
-        {/* CHECKBOX TERMOS E CONDIÇÕES + ERRO INLINE INFERIOR */}
         <div className="checkbox-container-group">
           <div className="checkbox-area">
             <input

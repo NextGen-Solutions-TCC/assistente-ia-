@@ -2,12 +2,14 @@ import "./Login.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
 import robot from "../assets/robot.svg";
 import google from "../assets/google.png";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
+
+// Importe a sua instância do Axios
+import Api from "../services/Api"; // Ajuste o caminho se necessário
 
 function Login() {
   const navigate = useNavigate();
@@ -50,36 +52,25 @@ function Login() {
     if (erroDetectado) return;
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/Api/login/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
-        }
-      );
+      const response = await Api.post("login/", {
+        email: email,
+        password: password,
+      });
 
-      const data = await response.json();
+      // Salva os tokens e o nome do usuário
+      localStorage.setItem("access", response.data.access);
+      localStorage.setItem("refresh", response.data.refresh);
+      localStorage.setItem("user_name", response.data.nome);
 
-      if (response.ok) {
-        console.log("Sucesso:", data);
+      navigate("/chat");
 
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
-        localStorage.setItem("user_name", data.nome);
-
-        navigate("/chat");
-      } else {
-        setErrorGeral(data.message || "Email ou senha incorretos");
-      }
     } catch (error) {
-      console.error("Erro na conexão:", error);
-      setErrorGeral("Não foi possível conectar ao servidor.");
+      // Se o erro for 500 ou queda de servidor, o Api.js (interceptador) já redireciona sozinho!
+      // Aqui tratamos APENAS os erros de validação do formulário (Ex: 400 Bad Request)
+      if (error.response && error.response.status < 500) {
+        const data = error.response.data;
+        setErrorGeral(data.message || data.detail || "Email ou senha incorretos");
+      }
     }
   };
 
@@ -95,7 +86,6 @@ function Login() {
 
         {errorGeral && <span className="error-message-inline geral">{errorGeral}</span>}
 
-        {/* CAMPO DE E-MAIL COM LABEL E PLACEHOLDER DE EXEMPLO */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">E-mail</label>
@@ -114,7 +104,6 @@ function Login() {
           </div>
         </div>
 
-        {/* CAMPO DE SENHA COM LABEL E PLACEHOLDER DE EXEMPLO */}
         <div className="input-group-validation">
           <div className="label-row">
             <label className="input-label">Senha</label>

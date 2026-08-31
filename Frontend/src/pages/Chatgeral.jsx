@@ -16,9 +16,9 @@ import maisIcon from "../assets/mais.svg";
 import perfilIcon from "../assets/perfil.svg";
 import configIcon from "../assets/configuracoes.svg";
 import ajudaIcon from "../assets/ajuda.svg";
-import setaDireitaIcon from "../assets/seta-direita.svg";
 import sairIcon from "../assets/sair.svg";
 import setaCimaIcon from "../assets/seta-cima.svg";
+import Api from "../services/Api";
 
 function ChatGeral() {
   console.log("CHATGERAL CARREGADO");
@@ -33,16 +33,27 @@ function ChatGeral() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchChatQuery, setSearchChatQuery] = useState("");
 
-  // NOVO: Estado para abrir/fechar o Popup do Perfil
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Modal de Adicionar Conta
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
+  const [addAccountEmail, setAddAccountEmail] = useState("");
+  const [addAccountPassword, setAddAccountPassword] = useState("");
+  const [addAccountRemember, setAddAccountRemember] = useState(false);
+  const [addAccountError, setAddAccountError] = useState("");
+  const [addAccountLoading, setAddAccountLoading] = useState(false);
+
+  // ESTADOS DO MODAL EDITAR PERFIL
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [nomeExibicao, setNomeExibicao] = useState("");
+  const [nomeUsuario, setNomeUsuario] = useState("");
+  const [editProfileError, setEditProfileError] = useState("");
+  const [editProfileLoading, setEditProfileLoading] = useState(false);
 
   const [userLoggedName, setUserLoggedName] = useState(
     () => localStorage.getItem("user_name") || "Letícia Souza"
   );
 
-  // Captura os dados enviados pelo backend após o login com Google
-  // (chegam na URL como ?access=...&refresh=...&nome=...) e salva
-  // no localStorage do mesmo jeito que o login manual já faz.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const access = params.get("access");
@@ -82,9 +93,96 @@ function ChatGeral() {
     setChatHistory([]); 
   };
 
-  const handleSendMessage = async (messageText) => {
-    console.log("ENTROU NA FUNÇÃO");
+  // Carrega dados do perfil ao abrir o modal Editar Perfil
+  const handleOpenEditProfile = async () => {
+    setIsProfileMenuOpen(false);
+    setEditProfileError("");
+    setNomeExibicao(userLoggedName);
 
+    try {
+      const res = await Api.get("usuario/me/");
+      if (res.data) {
+        setNomeExibicao(res.data.nome || userLoggedName);
+        setNomeUsuario(res.data.username || res.data.email?.split("@")[0] || "");
+      }
+    } catch {
+      // Caso a requisição falhe, mantém o nome atual do estado
+      setNomeUsuario(userLoggedName.toLowerCase().replace(/\s+/g, ""));
+    }
+
+    setIsEditProfileOpen(true);
+  };
+
+  // Salva o novo nome de exibição e atualiza na tela em tempo real
+  const handleSaveProfile = async () => {
+    setEditProfileError("");
+
+    if (!nomeExibicao.trim()) {
+      setEditProfileError("O nome não pode ficar em branco.");
+      return;
+    }
+
+    setEditProfileLoading(true);
+
+    try {
+      const res = await Api.patch("usuario/me/", {
+        nome: nomeExibicao.trim(),
+        username: nomeUsuario.trim()
+      });
+
+      const novoNome = res.data.nome || nomeExibicao.trim();
+      setUserLoggedName(novoNome);
+      localStorage.setItem("user_name", novoNome);
+      setIsEditProfileOpen(false);
+    } catch {
+      // Atualização fallback caso API offline
+      setUserLoggedName(nomeExibicao.trim());
+      localStorage.setItem("user_name", nomeExibicao.trim());
+      setIsEditProfileOpen(false);
+    } finally {
+      setEditProfileLoading(false);
+    }
+  };
+
+  const handleAddAccountLogin = async (e) => {
+    e.preventDefault();
+    setAddAccountError("");
+
+    if (!addAccountEmail || !addAccountPassword) {
+      setAddAccountError("Preencha e-mail e senha.");
+      return;
+    }
+
+    setAddAccountLoading(true);
+
+    try {
+      const response = await Api.post("usuario/login/", {
+        email: addAccountEmail,
+        senha: addAccountPassword,
+      });
+
+      if (response.data.access) {
+        localStorage.setItem("access", response.data.access);
+        localStorage.setItem("refresh", response.data.refresh);
+        if (response.data.nome) {
+          localStorage.setItem("user_name", response.data.nome);
+          setUserLoggedName(response.data.nome);
+        }
+
+        setIsAddAccountOpen(false);
+        setIsProfileMenuOpen(false);
+        setAddAccountEmail("");
+        setAddAccountPassword("");
+        setChatHistory([]);
+      }
+    } catch (err) {
+      setAddAccountError(err.response?.data?.detail || "E-mail ou senha incorretos.");
+    } finally {
+      setAddAccountLoading(false);
+    }
+  };
+
+  const handleSendMessage = async (messageText) => {
     const textToSend = messageText || inputMessage;
     if (!textToSend.trim()) return;
 
@@ -277,28 +375,31 @@ function ChatGeral() {
           {isProfileMenuOpen && (
             <div className="profile-popover-menu">
               
-              {/* Nome do Usuário no topo do card */}
               <div className="popover-user-info">
                 <div className="user-avatar">{userInitials}</div>
                 <span className="popover-user-name">{userDisplayName}</span>
               </div>
 
               {/* Adicionar outra conta */}
-              <button className="popover-item" onClick={() => console.log("Adicionar Conta")}>
+              <button 
+                className="popover-item" 
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  setIsAddAccountOpen(true);
+                }}
+              >
                 <div className="popover-icon-box">
-                  { <img src={maisIcon} alt="adicionar" className="popover-icon" />}
-                  <span></span>
+                  <img src={maisIcon} alt="adicionar" className="popover-icon" />
                 </div>
                 <span className="popover-text">Adicionar outra conta</span>
               </button>
 
               <div className="popover-divider"></div>
 
-              {/* Perfil */}
-              <button className="popover-item" onClick={() => console.log("Abrir Perfil")}>
+              {/* Perfil -> ABRE O MODAL EDITAR PERFIL */}
+              <button className="popover-item" onClick={handleOpenEditProfile}>
                 <div className="popover-icon-box">
-                  {<img src={perfilIcon} alt="perfil" className="popover-icon" />}
-                  <span></span>
+                  <img src={perfilIcon} alt="perfil" className="popover-icon" />
                 </div>
                 <span className="popover-text">Perfil</span>
               </button>
@@ -312,22 +413,19 @@ function ChatGeral() {
                 }}
               >
                 <div className="popover-icon-box">
-                  {<img src={configIcon} alt="configurações" className="popover-icon" />}
-                  <span></span>
+                  <img src={configIcon} alt="configurações" className="popover-icon" />
                 </div>
                 <span className="popover-text">Configurações</span>
               </button>
 
-              {/* Ajuda (com Seta na Direita) */}
+              {/* Ajuda */}
               <button className="popover-item justify-between" onClick={() => console.log("Abrir Ajuda")}>
                 <div className="popover-item-left">
                   <div className="popover-icon-box">
-                    {<img src={ajudaIcon} alt="ajuda" className="popover-icon" />}
-                    <span></span>
+                    <img src={ajudaIcon} alt="ajuda" className="popover-icon" />
                   </div>
                   <span className="popover-text">Ajuda</span>
                 </div>
-                {/* <img src={setaDireitaIcon} alt="seta" className="popover-arrow-right" /> */}
                 <span className="popover-arrow-right">❯</span>
               </button>
 
@@ -342,8 +440,7 @@ function ChatGeral() {
                 }}
               >
                 <div className="popover-icon-box">
-                  {<img src={sairIcon} alt="sair" className="popover-icon" />}
-                  <span></span>
+                  <img src={sairIcon} alt="sair" className="popover-icon" />
                 </div>
                 <span className="popover-text">Sair</span>
               </button>
@@ -351,7 +448,6 @@ function ChatGeral() {
             </div>
           )}
 
-          {/* RODAPÉ FIXO NA SIDEBAR QUE ABRE O MENU */}
           <div 
             className={`sidebar-footer ${isProfileMenuOpen ? "active" : ""}`}
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
@@ -361,11 +457,9 @@ function ChatGeral() {
               <span className="user-name">{userDisplayName}</span>
             </div>
             
-            {/* Seta para cima indicando menu expansível */}
             {isSidebarExpanded && (
               <div className={`footer-chevron ${isProfileMenuOpen ? "open" : ""}`}>
-                {<img src={setaCimaIcon} alt="chevron" />}
-                
+                <img src={setaCimaIcon} alt="chevron" />
               </div>
             )}
           </div>
@@ -406,6 +500,7 @@ function ChatGeral() {
             <div className="chat-view-area">
               {chatHistory.length === 0 ? (
                 <div className="welcome-chat-view">
+                  {/* TEXTO DE BOAS-VINDAS QUE ATUALIZA AUTOMATICAMENTE */}
                   <h1 className="welcome-heading">
                     Ei, {userLoggedName.split(" ")[0]}. Como posso te ajudar?
                   </h1>
@@ -458,6 +553,123 @@ function ChatGeral() {
       </main>
 
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
+      {/* MODAL EDITAR PERFIL */}
+      {isEditProfileOpen && (
+        <div className="edit-profile-overlay" onClick={() => setIsEditProfileOpen(false)}>
+          <div className="edit-profile-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="edit-profile-title">Editar Perfil</h2>
+
+            <div className="edit-profile-avatar-circle">
+              {userInitials}
+            </div>
+
+            <div className="edit-profile-form">
+              <div className="edit-profile-input-wrapper">
+                <input
+                  type="text"
+                  value={nomeExibicao}
+                  onChange={(e) => setNomeExibicao(e.target.value)}
+                  placeholder="Nome de exibição"
+                />
+              </div>
+
+              <div className="edit-profile-input-wrapper">
+                <input
+                  type="text"
+                  value={nomeUsuario}
+                  onChange={(e) => setNomeUsuario(e.target.value)}
+                  placeholder="Nome de usuario"
+                />
+              </div>
+
+              {editProfileError && <p className="edit-profile-error">{editProfileError}</p>}
+
+              <button 
+                type="button" 
+                className="edit-profile-save-btn"
+                onClick={handleSaveProfile}
+                disabled={editProfileLoading}
+              >
+                {editProfileLoading ? "Salvando..." : "Salvar"}
+              </button>
+
+              <button 
+                type="button" 
+                className="edit-profile-cancel-btn"
+                onClick={() => setIsEditProfileOpen(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE ADICIONAR OUTRA CONTA */}
+      {isAddAccountOpen && (
+        <div className="add-account-overlay" onClick={() => setIsAddAccountOpen(false)}>
+          <div className="add-account-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="add-account-close-btn" onClick={() => setIsAddAccountOpen(false)}>
+              ✕
+            </button>
+
+            <div className="add-account-robot-icon">
+              <img src={robot} alt="robot" />
+            </div>
+
+            <h2 className="add-account-title">
+              Bem vindo ao <span>LOGIN</span>
+            </h2>
+
+            <form onSubmit={handleAddAccountLogin} className="add-account-form">
+              <div className="add-account-input-group">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={addAccountEmail}
+                  onChange={(e) => setAddAccountEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="add-account-input-group">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={addAccountPassword}
+                  onChange={(e) => setAddAccountPassword(e.target.value)}
+                />
+                <a href="#forgot" className="forgot-password-link">esqueci minha senha</a>
+              </div>
+
+              <div className="add-account-checkbox-row">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    checked={addAccountRemember}
+                    onChange={(e) => setAddAccountRemember(e.target.checked)}
+                  />
+                  <span>Lembrar-se de mim</span>
+                </label>
+              </div>
+
+              {addAccountError && <p className="add-account-error">{addAccountError}</p>}
+
+              <button type="submit" className="add-account-submit-btn" disabled={addAccountLoading}>
+                {addAccountLoading ? "Entrando..." : "Entrar"}
+              </button>
+            </form>
+
+            <div className="add-account-footer">
+              <span>Não tem conta? </span>
+              <a href="/login" onClick={(e) => { e.preventDefault(); navigate("/login"); }}>
+                Criar uma conta
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -3,19 +3,17 @@ import { useNavigate } from "react-router-dom";
 import "./SettingsModal.css";
 import Api from "../services/Api";
 import configIcon from "../assets/configuracoes.svg";
-import escudoIcon from "../assets/escudo.svg";
 import perfilIcon from "../assets/perfil.svg";
 
 const TABS = [
   { key: "geral", label: "Geral", icon: configIcon },
-  { key: "seguranca", label: "Segurança", icon: escudoIcon },
   { key: "dados", label: "Controlar dados", icon: "database" },
   { key: "conta", label: "Conta", icon: perfilIcon },
 ];
 
 function DatabaseIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
       <ellipse cx="12" cy="5" rx="8" ry="3" />
       <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5" />
       <path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" />
@@ -28,14 +26,10 @@ function SettingsModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState("geral");
 
   const [perfil, setPerfil] = useState({ nome: "", email: "" });
-  const [nomeInput, setNomeInput] = useState("");
-  const [loadingPerfil, setLoadingPerfil] = useState(false);
 
-  const [geralMsg, setGeralMsg] = useState({ type: "", text: "" });
-  const [senhaAtual, setSenhaAtual] = useState("");
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [segurancaMsg, setSegurancaMsg] = useState({ type: "", text: "" });
+  // Estado do Tema (Escuro / Claro)
+  const [tema, setTema] = useState(() => localStorage.getItem("theme") || "Escuro");
+  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
 
   const [dadosMsg, setDadosMsg] = useState({ type: "", text: "" });
   const [confirmarLimparConversas, setConfirmarLimparConversas] = useState(false);
@@ -44,78 +38,46 @@ function SettingsModal({ isOpen, onClose }) {
   const [senhaExclusao, setSenhaExclusao] = useState("");
   const [contaMsg, setContaMsg] = useState({ type: "", text: "" });
 
+  // Aplica o Tema na raiz (HTML/BODY)
+  useEffect(() => {
+    const root = document.documentElement;
+    if (tema === "Claro") {
+      root.classList.add("light-theme");
+      root.classList.remove("dark-theme");
+      localStorage.setItem("theme", "Claro");
+    } else {
+      root.classList.add("dark-theme");
+      root.classList.remove("light-theme");
+      localStorage.setItem("theme", "Escuro");
+    }
+  }, [tema]);
+
   useEffect(() => {
     if (!isOpen) return;
 
     setActiveTab("geral");
-    setGeralMsg({ type: "", text: "" });
-    setSegurancaMsg({ type: "", text: "" });
     setDadosMsg({ type: "", text: "" });
     setContaMsg({ type: "", text: "" });
-    setSenhaAtual("");
-    setNovaSenha("");
-    setConfirmarSenha("");
     setConfirmarLimparConversas(false);
     setConfirmarExclusao(false);
     setSenhaExclusao("");
+    setIsThemeDropdownOpen(false);
 
-    setLoadingPerfil(true);
     Api.get("usuario/me/")
       .then((res) => {
         setPerfil({ nome: res.data.nome, email: res.data.email });
-        setNomeInput(res.data.nome);
       })
-      .catch(() => {
-        setGeralMsg({ type: "error", text: "Não foi possível carregar seu perfil." });
-      })
-      .finally(() => setLoadingPerfil(false));
+      .catch(() => {});
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSalvarNome = async () => {
-    setGeralMsg({ type: "", text: "" });
-
-    if (!nomeInput.trim()) {
-      setGeralMsg({ type: "error", text: "O nome não pode ficar em branco." });
-      return;
-    }
-
-    try {
-      const res = await Api.patch("usuario/me/", { nome: nomeInput.trim() });
-      setPerfil((prev) => ({ ...prev, nome: res.data.nome }));
-      localStorage.setItem("user_name", res.data.nome);
-      setGeralMsg({ type: "success", text: "Nome atualizado com sucesso." });
-    } catch {
-      setGeralMsg({ type: "error", text: "Não foi possível salvar o nome." });
-    }
-  };
-
-  const handleAlterarSenha = async () => {
-    setSegurancaMsg({ type: "", text: "" });
-
-    if (!senhaAtual || !novaSenha || !confirmarSenha) {
-      setSegurancaMsg({ type: "error", text: "Preencha todos os campos." });
-      return;
-    }
-
-    try {
-      const res = await Api.post("usuario/alterar-senha/", {
-        senha_atual: senhaAtual,
-        nova_senha: novaSenha,
-        confirmar_senha: confirmarSenha,
-      });
-      setSegurancaMsg({ type: "success", text: res.data.detail || "Senha alterada com sucesso." });
-      setSenhaAtual("");
-      setNovaSenha("");
-      setConfirmarSenha("");
-    } catch (err) {
-      const detail = err.response?.data?.detail;
-      setSegurancaMsg({
-        type: "error",
-        text: Array.isArray(detail) ? detail.join(" ") : detail || "Não foi possível alterar a senha.",
-      });
-    }
+  const handleSairDoAparelho = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("user_name");
+    onClose();
+    navigate("/login");
   };
 
   const handleBaixarDados = async () => {
@@ -158,11 +120,7 @@ function SettingsModal({ isOpen, onClose }) {
 
     try {
       await Api.delete("usuario/excluir-conta/", { data: { senha: senhaExclusao } });
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
-      localStorage.removeItem("user_name");
-      onClose();
-      navigate("/login");
+      handleSairDoAparelho();
     } catch (err) {
       setContaMsg({ type: "error", text: err.response?.data?.detail || "Não foi possível excluir a conta." });
     }
@@ -196,41 +154,55 @@ function SettingsModal({ isOpen, onClose }) {
           {activeTab === "geral" && (
             <>
               <h2 className="settings-title">Geral</h2>
-              <div className="settings-field">
-                <label>Nome de exibição</label>
-                <input
-                  type="text"
-                  value={nomeInput}
-                  disabled={loadingPerfil}
-                  onChange={(e) => setNomeInput(e.target.value)}
-                />
-              </div>
-              {geralMsg.text && <p className={`settings-msg ${geralMsg.type}`}>{geralMsg.text}</p>}
-              <button className="settings-primary-btn" onClick={handleSalvarNome} disabled={loadingPerfil}>
-                Salvar
-              </button>
-            </>
-          )}
 
-          {activeTab === "seguranca" && (
-            <>
-              <h2 className="settings-title">Segurança</h2>
-              <div className="settings-field">
-                <label>Senha atual</label>
-                <input type="password" value={senhaAtual} onChange={(e) => setSenhaAtual(e.target.value)} />
+              {/* APARÊNCIA */}
+              <div className="settings-row align-center">
+                <span className="settings-row-title">Aparência</span>
+                
+                <div className="custom-select-wrapper">
+                  <button 
+                    className="custom-select-trigger"
+                    onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
+                  >
+                    <span>{tema}</span>
+                    <span className="select-arrow">❯</span>
+                  </button>
+
+                  {isThemeDropdownOpen && (
+                    <div className="custom-dropdown-menu">
+                      <div 
+                        className={`dropdown-option ${tema === "Escuro" ? "selected" : ""}`}
+                        onClick={() => {
+                          setTema("Escuro");
+                          setIsThemeDropdownOpen(false);
+                        }}
+                      >
+                        <span>Escuro</span>
+                        {tema === "Escuro" && <span className="check-icon">✓</span>}
+                      </div>
+
+                      <div 
+                        className={`dropdown-option ${tema === "Claro" ? "selected" : ""}`}
+                        onClick={() => {
+                          setTema("Claro");
+                          setIsThemeDropdownOpen(false);
+                        }}
+                      >
+                        <span>Claro</span>
+                        {tema === "Claro" && <span className="check-icon">✓</span>}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="settings-field">
-                <label>Nova senha</label>
-                <input type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} />
+
+              {/* SAIR DESTE APARELHO */}
+              <div className="settings-row align-center">
+                <span className="settings-row-title">Sair deste aparelho</span>
+                <button className="settings-pill-btn" onClick={handleSairDoAparelho}>
+                  Sair
+                </button>
               </div>
-              <div className="settings-field">
-                <label>Confirmar nova senha</label>
-                <input type="password" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} />
-              </div>
-              {segurancaMsg.text && <p className={`settings-msg ${segurancaMsg.type}`}>{segurancaMsg.text}</p>}
-              <button className="settings-primary-btn" onClick={handleAlterarSenha}>
-                Salvar alterações
-              </button>
             </>
           )}
 
@@ -241,7 +213,7 @@ function SettingsModal({ isOpen, onClose }) {
               <div className="settings-row">
                 <div>
                   <p className="settings-row-title">Baixar meus dados</p>
-                  <p className="settings-row-subtitle">Exporta seu perfil e o histórico de conversas em JSON.</p>
+                  <p className="settings-row-subtitle">Exporta seu perfil e conversas.</p>
                 </div>
                 <button className="settings-secondary-btn" onClick={handleBaixarDados}>
                   Baixar
@@ -251,7 +223,7 @@ function SettingsModal({ isOpen, onClose }) {
               <div className="settings-row">
                 <div>
                   <p className="settings-row-title">Apagar todas as conversas</p>
-                  <p className="settings-row-subtitle">Remove permanentemente todo o seu histórico de chat.</p>
+                  <p className="settings-row-subtitle">Remove o histórico de chat.</p>
                 </div>
                 {confirmarLimparConversas ? (
                   <div className="settings-confirm-inline">
@@ -290,7 +262,7 @@ function SettingsModal({ isOpen, onClose }) {
               <div className="settings-row">
                 <div>
                   <p className="settings-row-title">Excluir conta</p>
-                  <p className="settings-row-subtitle">Essa ação é permanente e apaga todos os seus dados.</p>
+                  <p className="settings-row-subtitle">Apaga todos os seus dados.</p>
                 </div>
                 {!confirmarExclusao && (
                   <button className="settings-danger-btn" onClick={() => setConfirmarExclusao(true)}>
@@ -309,7 +281,7 @@ function SettingsModal({ isOpen, onClose }) {
                   />
                   <div className="settings-confirm-inline" style={{ marginTop: "12px" }}>
                     <button className="settings-danger-btn" onClick={handleExcluirConta}>
-                      Confirmar exclusão
+                      Confirmar
                     </button>
                     <button
                       className="settings-ghost-btn"

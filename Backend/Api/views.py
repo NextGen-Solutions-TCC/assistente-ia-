@@ -275,9 +275,13 @@ class ConversaViewSet(ModelViewSet):
         return qs.filter(usuario__user=self.request.user)
 
     def perform_create(self, serializer):
-    
+
         # Busca o perfil do usuário logado
         usuario_perfil = Usuario.objects.filter(user=self.request.user).first()
+        if not usuario_perfil:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("Perfil de usuário não encontrado para o usuário autenticado.")
+
         serializer.save(usuario=usuario_perfil)
 
 
@@ -351,26 +355,31 @@ def google_login_redirect(request):
     ele de volta pro front já com os dados na URL, do mesmo jeito que
     o LoginView normal devolve no corpo da resposta.
     """
-    user = request.user
+    try:
+        user = request.user
 
-    usuario, _ = Usuario.objects.get_or_create(
-        user=user,
-        defaults={
-            'nome': f"{user.first_name} {user.last_name}".strip() or user.email,
-            'email': user.email,
-            'senha': '',
-        }
-    )
+        usuario, _ = Usuario.objects.get_or_create(
+            user=user,
+            defaults={
+                'nome': f"{user.first_name} {user.last_name}".strip() or user.email,
+                'email': user.email,
+                'senha': '',
+            }
+        )
 
-    refresh = RefreshToken.for_user(user)
+        refresh = RefreshToken.for_user(user)
 
-    params = urlencode({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "nome": usuario.nome,
-    })
+        params = urlencode({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "nome": usuario.nome,
+        })
 
-    return redirect(f"http://localhost:5173/chat?{params}")
+        return redirect(f"http://localhost:5173/chat?{params}")
+    except Exception:
+        import logging
+        logging.getLogger("Api").exception("Falha ao concluir login via Google")
+        return redirect("http://localhost:5173/login?erro=google_login_falhou")
 
 
 @api_view(['GET'])

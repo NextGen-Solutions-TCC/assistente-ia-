@@ -19,9 +19,10 @@
 }
 
 .icon {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 5px;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 10px auto;
+  display: block;
 }
 
 h2 {
@@ -34,6 +35,28 @@ h2 {
 
 h2 span {
   color: #1f35ff;
+}
+
+.label-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 6px;
+}
+
+.input-label {
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.input-group-validation {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px; 
 }
 
 .checkbox-area {
@@ -110,11 +133,30 @@ h2 span {
   margin-bottom: 0;
 }
 
+.error-message-inline {
+  color: #bd2a2a;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.error-message-inline.geral {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+  display: block;
+}
+
 .error-message-inline.terms-error {
   text-align: left;
   align-self: flex-start;
   margin-top: 4px;
   font-size: 12px;
+}
+
+.input-error-wrapper input {
+  border: 1px solid #bd2a2a !important;
+  background-color: rgba(189, 42, 42, 0.04) !important;
 }
 
 a {
@@ -134,6 +176,7 @@ a {
   cursor: pointer;
   transition: color 0.2s ease;
   display: inline-block;
+  margin-left: 6px;
 }
 
 .signup span:hover,

@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.error-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  /* Fundo escuro azulado conforme a Imagem 2 */
+  background-color: #121824;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* Reduz o tamanho do fundo central para não tomar a tela toda */
+.bg-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 800px;
+  width: 90%;
+  height: auto;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.error-header {
+  position: relative;
+  z-index: 2;
+  margin-top: 50px;
+}
+
+.error-header h1 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.error-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: center;
+}
+
+/* Numeral 500 e planeta maiores e bem destacados */
+.error-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  gap: 12px;
+}
+
+.planet-img {
+  width: 135px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Garante o texto 'E R R O' em branco puro com mais espaçamento */
+.error-subtitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 12px;
+  margin-top: 20px;
+  margin-bottom: 25px;
+  color: #ffffff !important;
+}
+
+.error-title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.error-message {
+  font-size: 1.05rem;
+  color: #e2e8f0;
+  font-weight: 400;
+  margin-bottom: 35px;
+}
+
+/* Botão arredondado com visual levemente translúcido */
+.btn-home {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}

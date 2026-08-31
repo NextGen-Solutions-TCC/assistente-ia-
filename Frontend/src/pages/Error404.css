@@ -1,0 +1,141 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.error404-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #121824;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* Imagem do fundo azulado e focado */
+.bg-image-404 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 900px;
+  width: 95%;
+  height: auto;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.error404-header {
+  position: relative;
+  z-index: 2;
+  margin-top: 50px;
+}
+
+.error404-header h1 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.error404-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: 0 40px;
+  gap: 60px;
+}
+
+/* Alinhamento do bloco de texto à esquerda */
+.error404-text-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.error404-code {
+  font-size: 4.5rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.error404-subtitle {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 35px;
+}
+
+/* Botão arredondado e translúcido */
+.btn-home-404 {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.btn-home-404:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Lado direito da imagem */
+.error404-image-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.astronaut-img {
+  width: 380px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 850px) {
+  .error404-content {
+    flex-direction: column-reverse;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .error404-text-side {
+    align-items: center;
+    text-align: center;
+  }
+
+  .astronaut-img {
+    width: 260px;
+  }
+
+  .error404-code {
+    font-size: 3.2rem;
+  }
+
+  .error404-subtitle {
+    font-size: 1.4rem;
+  }
+}

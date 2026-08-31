@@ -3,6 +3,8 @@ from datetime import timedelta
 import json
 from urllib.request import urlopen
 
+import Api
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = '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' # retirar depois
@@ -47,6 +49,40 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'EXCEPTION_HANDLER': 'Api.exception_handler.custom_exception_handler'
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'Api': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
 }
 
 SIMPLE_JWT = {
@@ -92,9 +128,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'genia',
-        'USER': 'root',
+        'USER': 'genia_tcc',
         'PASSWORD': 'root',
-        'HOST': 'localhost',
+        'HOST': '10.55.9.217',
         'PORT': '3306',
     }
 }
@@ -142,3 +178,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 # Após o Google confirmar o login, cai nessa view (gera o JWT e só então manda pro front)
 LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/Api/social-redirect/'
 LOGOUT_REDIRECT_URL = 'http://localhost:5173/'
+
+
+

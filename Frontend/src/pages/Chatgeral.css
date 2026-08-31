@@ -608,3 +608,322 @@ body {
   font-weight: 400;
   margin: 0;
 }
+
+/* =========================================================
+   MODAL FLUTUANTE DE ADICIONAR OUTRA CONTA (CARD DE LOGIN)
+========================================================= */
+.add-account-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.add-account-modal {
+  width: 420px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  font-family: 'Inter', sans-serif;
+  animation: fadeInModal 0.25s ease-out;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.add-account-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #a0aec0;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.add-account-close-btn:hover {
+  color: #1a202c;
+}
+
+.add-account-robot-icon {
+  width: 72px;
+  height: 72px;
+  background: #2140ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(33, 64, 255, 0.3);
+}
+
+.add-account-robot-icon img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.add-account-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 24px;
+}
+
+.add-account-title span {
+  color: #2140ff;
+}
+
+.add-account-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-account-input-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+}
+
+.add-account-input-group input {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #1a202c;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.add-account-input-group input:focus {
+  border-color: #2140ff;
+  background: #ffffff;
+}
+
+.forgot-password-link {
+  align-self: flex-end;
+  font-size: 11px;
+  color: #e53e3e;
+  text-decoration: none;
+  margin-top: 6px;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+.add-account-checkbox-row {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2140ff;
+  cursor: pointer;
+}
+
+.add-account-error {
+  font-size: 13px;
+  color: #e53e3e;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.add-account-submit-btn {
+  width: 100%;
+  height: 48px;
+  background: #2140ff;
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.add-account-submit-btn:hover {
+  background: #1530e0;
+}
+
+.add-account-submit-btn:active {
+  transform: scale(0.99);
+}
+
+.add-account-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-account-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #718096;
+}
+
+.add-account-footer a {
+  color: #2140ff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.add-account-footer a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   MODAL EDITAR PERFIL (ALINHADO COM A IMAGEM)
+========================================================= */
+.edit-profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(2px);
+}
+
+.edit-profile-modal {
+  width: 380px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  font-family: 'Inter', sans-serif;
+  animation: fadeInModal 0.2s ease-out;
+}
+
+.edit-profile-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.edit-profile-avatar-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #5b73e8;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.edit-profile-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-profile-input-wrapper {
+  width: 100%;
+}
+
+.edit-profile-input-wrapper input {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #7c7c7c;
+  background: #fdfdfd;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #333333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.edit-profile-input-wrapper input:focus {
+  border-color: #1d3cf6;
+}
+
+.edit-profile-error {
+  font-size: 12px;
+  color: #e53e3e;
+  text-align: center;
+}
+
+.edit-profile-save-btn {
+  width: 100%;
+  height: 48px;
+  background: #1d3cf6;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.edit-profile-save-btn:hover {
+  background: #132ccb;
+}
+
+.edit-profile-cancel-btn {
+  background: transparent;
+  border: none;
+  color: #b93c3c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.edit-profile-cancel-btn:hover {
+  opacity: 0.8;
+}
